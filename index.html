@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a1628">
+<title>Cirugía II · EMM</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0a1628;--navy2:#142238;--navy3:#1e3252;
+  --gold:#c9a84c;--gold2:#e2c47a;--gold3:#f5ecd4;
+  --cream:#f4f0e8;--white:#ffffff;
+  --text:#1a1a1a;--muted:#5c5c5c;--hint:#9a9a9a;
+  --border:rgba(0,0,0,.1);--border2:rgba(0,0,0,.18);
+  --ok-bg:#e6f5dc;--ok:#2a6617;--ok-b:#3d8c22;
+  --err-bg:#fce9e9;--err:#8b1f1f;--err-b:#c0392b;
+  --info-bg:#e6f0fc;--info:#1a3a6b;--info-b:#3a6dc0;
+  --warn-bg:#fdf3dc;--warn:#7a4a0a;--warn-b:#c07a20;
+  --r:10px;--rs:6px;
+  --accent-trauma:#c0392b;
+  --accent-airway:#2980b9;
+  --accent-shock:#8e44ad;
+  --accent-thorax:#16a085;
+  --accent-abd:#d35400;
+  --accent-tce:#2c3e50;
+  --accent-spine:#27ae60;
+  --accent-msk:#7f8c8d;
+  --accent-thermal:#e74c3c;
+  --accent-env:#1abc9c;
+  --accent-ped:#e91e8c;
+  --accent-preg:#9b59b6;
+  --accent-intro:#34495e;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:var(--navy);font-family:'Barlow',sans-serif;color:var(--text);}
+/* SPLASH */
+#splash{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .5s;}
+#splash.hide{opacity:0;pointer-events:none;}
+.splash-hex{width:80px;height:80px;background:var(--gold);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:20px;animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+.splash-title{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:var(--gold2);letter-spacing:.1em;text-transform:uppercase;}
+.splash-sub{font-size:13px;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;margin-top:6px;}
+.splash-bar{width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:99px;margin-top:32px;overflow:hidden;}
+.splash-fill{height:100%;width:0;background:var(--gold);border-radius:99px;transition:width 2s ease;}
+/* REGISTRO */
+#reg-screen{position:fixed;inset:0;background:var(--navy);z-index:8888;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;transition:opacity .4s;}
+#reg-screen.hide{opacity:0;pointer-events:none;}
+.reg-box{background:var(--navy2);border:1px solid rgba(201,168,76,.3);border-radius:16px;padding:28px 24px;width:100%;max-width:380px;}
+.reg-logo{display:flex;align-items:center;gap:12px;margin-bottom:22px;}
+.reg-hex{width:40px;height:40px;background:var(--gold);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.reg-title{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:var(--gold2);letter-spacing:.06em;text-transform:uppercase;line-height:1.1;}
+.reg-sub-t{font-size:11px;color:rgba(255,255,255,.35);letter-spacing:.05em;text-transform:uppercase;margin-top:2px;}
+.reg-welcome{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.18);border-radius:8px;padding:10px 14px;margin-bottom:20px;font-size:12px;color:rgba(255,255,255,.45);line-height:1.55;text-align:center;}
+.reg-field{margin-bottom:16px;}
+.reg-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:6px;display:block;}
+.reg-input{width:100%;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:8px;padding:12px 14px;font-family:'Barlow',sans-serif;font-size:16px;color:white;outline:none;transition:border .2s;-webkit-appearance:none;-moz-appearance:none;}
+.reg-input:focus{border-color:var(--gold);background:rgba(255,255,255,.1);}
+.reg-input::placeholder{color:rgba(255,255,255,.18);}
+select.reg-input option{background:#142238;color:white;}
+.reg-btn{width:100%;padding:14px;background:var(--gold);color:var(--navy);border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;margin-top:4px;transition:all .2s;}
+.reg-btn:hover:not(:disabled){background:var(--gold2);}
+.reg-btn:disabled{opacity:.35;cursor:default;}
+.reg-error{color:#ff7070;font-size:12px;margin-top:8px;display:none;font-family:'Barlow',sans-serif;}
+.tb-user{font-size:10px;color:rgba(255,255,255,.4);font-family:'Barlow Condensed',sans-serif;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px;}
+/* APP SHELL */
+#app{height:100%;display:flex;flex-direction:column;overflow:hidden;}
+/* TOP BAR */
+.topbar{background:var(--navy);padding:12px 16px 8px;flex-shrink:0;border-bottom:1px solid rgba(201,168,76,.2);}
+.topbar-row1{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.tb-back{background:none;border:none;color:rgba(255,255,255,.6);font-size:20px;cursor:pointer;padding:4px 6px 4px 0;line-height:1;display:none;}
+.tb-back.vis{display:block;}
+.tb-title{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--gold2);letter-spacing:.05em;text-transform:uppercase;flex:1;}
+.tb-xp{display:flex;align-items:center;gap:6px;}
+.xp-flame{font-size:14px;}
+.xp-num{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--gold);}
+.cd-mini{display:flex;align-items:center;gap:4px;}
+.cd-val{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:rgba(255,255,255,.45);}
+/* BOTTOM NAV */
+.bottomnav{background:var(--navy2);border-top:1px solid rgba(201,168,76,.15);display:flex;flex-shrink:0;}
+.bn-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 4px 8px;border:none;background:none;cursor:pointer;border-top:3px solid transparent;transition:all .2s;}
+.bn-btn.active{border-top-color:var(--gold);}
+.bn-icon{font-size:18px;margin-bottom:2px;}
+.bn-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:rgba(255,255,255,.45);}
+.bn-btn.active .bn-label{color:var(--gold);}
+/* MAIN CONTENT */
+#content{flex:1;overflow-y:auto;background:var(--cream);-webkit-overflow-scrolling:touch;}
+.screen{display:none;min-height:100%;padding-bottom:20px;}
+.screen.active{display:block;}
+/* HOME */
+.home-hero{background:var(--navy);padding:20px 16px 16px;}
+.home-banner{background:linear-gradient(135deg,var(--navy2),var(--navy3));border:1px solid rgba(201,168,76,.3);border-radius:var(--r);padding:16px;margin-bottom:12px;display:flex;gap:14px;align-items:center;}
+.banner-hex{width:44px;height:44px;background:var(--gold);clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.banner-text{}
+.banner-h{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--gold2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
+.banner-s{font-size:12px;color:rgba(255,255,255,.5);line-height:1.5;}
+.cd-row{display:flex;gap:8px;margin-bottom:4px;}
+.cd-box{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:var(--rs);text-align:center;padding:6px 4px;}
+.cd-n{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:var(--gold);line-height:1;}
+.cd-u{font-size:9px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.06em;}
+/* STATS ROW */
+.stats-row{display:flex;gap:8px;padding:12px 16px 0;}
+.stat-card{flex:1;background:white;border:1px solid var(--border);border-radius:var(--r);padding:10px 8px;text-align:center;}
+.stat-n{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:var(--navy);}
+.stat-l{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.06em;}
+/* SECTION LABELS */
+.sec-hd{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--hint);padding:16px 16px 6px;}
+/* MODULE CARDS */
+.mod-list{padding:0 12px 8px;display:flex;flex-direction:column;gap:8px;}
+.mod-card{background:white;border:1px solid var(--border);border-radius:var(--r);display:flex;align-items:center;gap:14px;padding:13px 14px;cursor:pointer;transition:transform .15s,box-shadow .15s;border-left:4px solid;}
+.mod-card:active{transform:scale(.98);}
+.mod-icon{font-size:22px;flex-shrink:0;}
+.mod-info{flex:1;min-width:0;}
+.mod-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);margin-bottom:2px;}
+.mod-sub{font-size:12px;color:var(--muted);line-height:1.4;}
+.mod-meta{display:flex;align-items:center;gap:6px;margin-top:4px;}
+.mod-badge{font-size:10px;font-weight:600;letter-spacing:.05em;padding:2px 7px;border-radius:99px;text-transform:uppercase;}
+.mod-prog-wrap{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.mod-pct{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--navy);}
+.mini-bar{width:40px;height:4px;background:var(--border);border-radius:99px;overflow:hidden;}
+.mini-fill{height:100%;border-radius:99px;}
+/* MODULE INNER */
+.mod-inner{display:none;}
+.mod-inner.active{display:block;}
+.mi-tabs{display:flex;overflow-x:auto;background:var(--navy);border-bottom:1px solid rgba(201,168,76,.2);scrollbar-width:none;flex-shrink:0;}
+.mi-tabs::-webkit-scrollbar{display:none;}
+.mi-tab{padding:11px 16px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.45);border:none;background:none;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;}
+.mi-tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+/* CONTENT AREA */
+.mi-content{padding:16px;}
+/* SUMMARY */
+.summary-card{background:white;border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden;}
+.sc-head{padding:14px 16px;border-bottom:1px solid var(--border);}
+.sc-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);margin-bottom:4px;}
+.sc-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--navy);text-transform:uppercase;}
+.sc-body{padding:14px 16px;}
+.body-p{font-size:14px;color:var(--text);line-height:1.7;margin-bottom:10px;}
+.body-p:last-child{margin-bottom:0;}
+.mnem{background:var(--navy);color:var(--gold);border-radius:var(--rs);padding:11px 14px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.07em;text-align:center;text-transform:uppercase;margin:10px 0;}
+.al{border-radius:var(--rs);padding:10px 13px;margin:8px 0;font-size:13.5px;line-height:1.55;border-left:4px solid;}
+.al-i{background:var(--info-bg);color:var(--info);border-color:var(--info-b);}
+.al-d{background:var(--err-bg);color:var(--err);border-color:var(--err-b);}
+.al-s{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-b);}
+.al-w{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-b);}
+/* TABLES */
+.dt{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0;}
+.dt th{background:var(--cream);color:var(--navy);padding:7px 10px;text-align:left;font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:.05em;text-transform:uppercase;font-size:11px;border-bottom:2px solid var(--navy);}
+.dt td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5;}
+.dt tr:last-child td{border-bottom:none;}
+/* EXAM POINTS */
+.ep-list{display:flex;flex-direction:column;gap:8px;}
+.ep-item{background:white;border:1px solid var(--border);border-radius:var(--rs);padding:13px 14px;display:flex;gap:12px;align-items:flex-start;}
+.ep-star{color:var(--gold);font-size:16px;flex-shrink:0;margin-top:1px;}
+.ep-text{font-size:13.5px;color:var(--text);line-height:1.6;}
+.ep-text strong{color:var(--navy);}
+/* FLASHCARDS */
+.fc-counter{text-align:center;font-size:12px;color:var(--muted);margin-bottom:12px;font-family:'Barlow Condensed',sans-serif;letter-spacing:.07em;text-transform:uppercase;}
+.fc-wrap{perspective:1000px;height:220px;margin-bottom:16px;cursor:pointer;}
+.fc-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1);}
+.fc-inner.flipped{transform:rotateY(180deg);}
+.fc-face{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;}
+.fc-front{background:var(--navy);border:1px solid rgba(201,168,76,.3);}
+.fc-back{background:white;border:2px solid var(--ok-b);transform:rotateY(180deg);}
+.fc-q-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:10px;}
+.fc-q-text{font-family:'EB Garamond',serif;font-size:17px;color:white;line-height:1.5;}
+.fc-hint{font-size:11px;color:rgba(255,255,255,.3);margin-top:12px;font-style:italic;}
+.fc-a-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ok);margin-bottom:10px;}
+.fc-a-text{font-size:15px;color:var(--text);line-height:1.6;}
+.fc-actions{display:flex;gap:10px;}
+.fc-btn{flex:1;padding:11px;border-radius:var(--rs);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid;cursor:pointer;}
+.fc-btn-no{background:var(--err-bg);color:var(--err);border-color:var(--err-b);}
+.fc-btn-yes{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-b);}
+/* QUESTIONS */
+.q-prog-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.q-prog-bar{flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden;}
+.q-prog-fill{height:100%;background:var(--navy);border-radius:99px;transition:width .3s;}
+.q-prog-label{font-size:12px;color:var(--hint);font-family:'Barlow Condensed',sans-serif;letter-spacing:.06em;white-space:nowrap;}
+.q-card{background:white;border:1px solid var(--border);border-radius:var(--r);padding:18px;margin-bottom:12px;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.q-meta{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--hint);margin-bottom:8px;}
+.q-scenario{background:var(--cream);border-left:3px solid var(--navy3);border-radius:0 var(--rs) var(--rs) 0;padding:10px 13px;margin-bottom:12px;font-size:13px;color:var(--muted);line-height:1.65;font-style:italic;}
+.q-text{font-family:'EB Garamond',serif;font-size:17px;color:var(--text);line-height:1.6;margin-bottom:14px;}
+.opts{display:flex;flex-direction:column;gap:8px;}
+.opt{display:flex;align-items:flex-start;gap:12px;background:white;border:1.5px solid var(--border2);border-radius:var(--rs);padding:11px 13px;font-size:14px;color:var(--text);cursor:pointer;text-align:left;transition:all .18s;line-height:1.4;width:100%;}
+.opt:active:not(:disabled){transform:scale(.99);}
+.opt-l{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--hint);min-width:16px;flex-shrink:0;margin-top:1px;}
+.opt.correct{background:var(--ok-bg);border-color:var(--ok-b);color:var(--ok);}
+.opt.correct .opt-l{color:var(--ok);}
+.opt.wrong{background:var(--err-bg);border-color:var(--err-b);color:var(--err);}
+.opt.wrong .opt-l{color:var(--err);}
+.q-feedback{margin-top:12px;padding:12px 14px;border-radius:var(--rs);font-size:13.5px;line-height:1.6;border-left:4px solid;}
+.q-fb-ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok-b);}
+.q-fb-err{background:var(--err-bg);color:var(--err);border-color:var(--err-b);}
+.q-nav{display:flex;gap:10px;margin-top:8px;}
+.btn{padding:12px 16px;border-radius:var(--rs);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1.5px solid var(--border2);cursor:pointer;background:white;color:var(--text);transition:all .18s;}
+.btn-primary{background:var(--navy);color:var(--gold);border-color:var(--navy);}
+.btn-full{width:100%;}
+.btn-half{flex:1;}
+/* CASES */
+.case-card{background:white;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;}
+.case-head{background:var(--navy);padding:14px 16px;}
+.case-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:4px;}
+.case-title{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--gold2);letter-spacing:.04em;}
+.case-scenario{padding:14px 16px;background:var(--cream);border-bottom:1px solid var(--border);font-family:'EB Garamond',serif;font-size:15px;color:var(--text);line-height:1.7;}
+.case-body{padding:14px 16px;}
+.case-q{font-size:14px;color:var(--navy);font-weight:600;margin-bottom:12px;line-height:1.5;}
+/* ALGO */
+.algo-step{background:white;border:1px solid var(--border);border-radius:var(--rs);padding:13px 14px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;border-left:4px solid var(--navy);}
+.algo-n{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--navy);min-width:24px;flex-shrink:0;line-height:1;}
+.algo-text{font-size:13.5px;color:var(--text);line-height:1.6;}
+.algo-text strong{color:var(--navy);}
+/* SCORE SCREEN */
+.score-screen{padding:32px 16px;text-align:center;}
+.score-circle{width:120px;height:120px;border-radius:50%;background:var(--navy);margin:0 auto 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 8px 30px rgba(10,22,40,.3);}
+.score-big{font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:800;color:var(--gold);line-height:1;}
+.score-den{font-size:13px;color:rgba(255,255,255,.4);}
+.score-pct{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.score-msg{font-family:'EB Garamond',serif;font-size:16px;color:var(--muted);margin-bottom:24px;max-width:320px;margin-left:auto;margin-right:auto;line-height:1.5;}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:320px;margin:0 auto 24px;}
+.sg-cell{background:white;border:1px solid var(--border);border-radius:var(--rs);padding:12px 8px;text-align:center;}
+.sg-n{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;}
+.sg-l{font-size:10px;color:var(--hint);text-transform:uppercase;letter-spacing:.05em;}
+/* REVIEW */
+.review-item{background:white;border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;margin-bottom:8px;border-left:4px solid;}
+.rv-ok{border-left-color:var(--ok-b);}
+.rv-err{border-left-color:var(--err-b);}
+.rv-q{font-size:13px;color:var(--text);margin-bottom:3px;line-height:1.4;}
+.rv-a{font-size:12px;color:var(--muted);}
+/* ERRORS TAB */
+.err-empty{text-align:center;padding:40px 20px;color:var(--hint);font-family:'EB Garamond',serif;font-size:16px;}
+/* PROGRESS SCREEN */
+.prog-header{background:var(--navy);padding:20px 16px;}
+.prog-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--gold2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px;}
+.prog-sub{font-size:12px;color:rgba(255,255,255,.4);}
+.prog-overall{background:white;border:1px solid var(--border);border-radius:var(--r);margin:12px 16px;padding:16px;}
+.po-label{font-size:12px;color:var(--hint);text-transform:uppercase;letter-spacing:.07em;font-family:'Barlow Condensed',sans-serif;margin-bottom:8px;}
+.po-bar-wrap{background:var(--border);border-radius:99px;height:10px;overflow:hidden;margin-bottom:6px;}
+.po-bar{background:var(--navy);height:100%;border-radius:99px;transition:width .6s;}
+.po-pct{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;color:var(--navy);}
+.prog-list{padding:0 12px 12px;display:flex;flex-direction:column;gap:6px;}
+.pl-item{background:white;border:1px solid var(--border);border-radius:var(--rs);padding:10px 13px;display:flex;align-items:center;gap:12px;}
+.pl-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.pl-name{flex:1;font-size:13px;color:var(--text);}
+.pl-bar-wrap{width:80px;height:5px;background:var(--border);border-radius:99px;overflow:hidden;}
+.pl-bar{height:100%;border-radius:99px;}
+.pl-pct{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--navy);min-width:32px;text-align:right;}
+/* XABCDE ALGO PAGE */
+.algo-page{padding:16px;}
+.algo-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--hint);padding-bottom:8px;}
+.xabcde-grid{display:flex;flex-direction:column;gap:8px;}
+.xa-row{background:white;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.xa-head{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;}
+.xa-letter{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;line-height:1;min-width:32px;}
+.xa-name{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);flex:1;}
+.xa-chevron{font-size:12px;color:var(--hint);transition:transform .2s;}
+.xa-chevron.open{transform:rotate(180deg);}
+.xa-body{display:none;padding:0 14px 14px;border-top:1px solid var(--border);}
+.xa-body.open{display:block;}
+/* PILL */
+.pill{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.05em;padding:2px 8px;border-radius:99px;text-transform:uppercase;}
+.pill-r{background:var(--err-bg);color:var(--err);}
+.pill-y{background:var(--warn-bg);color:var(--warn);}
+.pill-g{background:var(--ok-bg);color:var(--ok);}
+.pill-b{background:var(--info-bg);color:var(--info);}
+/* RAPID FIRE */
+.rf-card{background:var(--navy);border-radius:var(--r);padding:24px 20px;margin-bottom:12px;text-align:center;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.rf-label{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:12px;}
+.rf-q{font-family:'EB Garamond',serif;font-size:20px;color:white;line-height:1.5;}
+.rf-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.rf-opt{background:white;border:1.5px solid var(--border2);border-radius:var(--rs);padding:12px 10px;font-size:14px;color:var(--text);cursor:pointer;text-align:center;transition:all .18s;font-weight:500;}
+.rf-opt.correct{background:var(--ok-bg);border-color:var(--ok-b);color:var(--ok);font-weight:700;}
+.rf-opt.wrong{background:var(--err-bg);border-color:var(--err-b);color:var(--err);font-weight:700;}
+/* STREAK */
+.streak-bar{background:var(--navy);border-radius:var(--rs);padding:8px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.streak-n{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--gold);}
+.streak-l{font-size:12px;color:rgba(255,255,255,.5);}
+/* RESPONSIVE */
+@media(min-width:600px){
+  #app{max-width:480px;margin:0 auto;box-shadow:0 0 60px rgba(0,0,0,.5);}
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-hex">⚕</div>
+  <div class="splash-title">Cirugía II</div>
+  <div class="splash-sub">Escuela Militar de Medicina · 4.° Año</div>
+  <div class="splash-bar"><div class="splash-fill" id="sf"></div></div>
+</div>
+
+<!-- REGISTRO -->
+<div id="reg-screen" style="display:none">
+  <div class="reg-box">
+    <div class="reg-logo">
+      <div class="reg-hex">⚕</div>
+      <div>
+        <div class="reg-title">Cirugía II · EMM</div>
+        <div class="reg-sub-t">Escuela Militar de Medicina · 4.° Año</div>
+      </div>
+    </div>
+    <div class="reg-welcome">Bienvenido al sistema de estudio.<br>Ingresa tus datos para continuar.</div>
+    <div class="reg-field">
+      <label class="reg-label">Nombre completo</label>
+      <input class="reg-input" id="reg-nombre" type="text" placeholder="Apellidos Nombre" autocomplete="name" autocapitalize="words">
+    </div>
+    <div class="reg-field">
+      <label class="reg-label">Grupo</label>
+      <select class="reg-input" id="reg-grupo">
+        <option value="">— Selecciona tu grupo —</option>
+        <option value="Grupo A">Grupo A</option>
+        <option value="Grupo B">Grupo B</option>
+        <option value="Grupo C">Grupo C</option>
+      </select>
+    </div>
+    <div class="reg-field">
+      <label class="reg-label">Número de lista</label>
+      <input class="reg-input" id="reg-lista" type="number" placeholder="Ej. 12" min="1" max="50" inputmode="numeric">
+    </div>
+    <div class="reg-error" id="reg-error">Por favor completa todos los campos.</div>
+    <button class="reg-btn" id="reg-btn" onclick="submitReg()">Ingresar →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-row1">
+      <button class="tb-back" id="tb-back" onclick="goBack()">←</button>
+      <div class="tb-title" id="tb-title">Cirugía II · EMM</div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div class="tb-user" id="tb-user-badge"></div>
+        <div class="tb-xp"><span class="xp-flame">🔥</span><span class="xp-num" id="xp-display">0</span></div>
+      </div>
+    </div>
+    <div class="cd-mini">
+      <span style="font-size:9px;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.06em;margin-right:4px;">Examen:</span>
+      <span class="cd-val" id="cd-inline">--</span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div id="content">
+
+    <!-- HOME -->
+    <div id="screen-home" class="screen active">
+      <div class="home-hero">
+        <div class="banner">
+          <div class="cd-row">
+            <div class="cd-box"><div class="cd-n" id="cd-d">--</div><div class="cd-u">días</div></div>
+            <div class="cd-box"><div class="cd-n" id="cd-h">--</div><div class="cd-u">hrs</div></div>
+            <div class="cd-box"><div class="cd-n" id="cd-m">--</div><div class="cd-u">min</div></div>
+            <div class="cd-box"><div class="cd-n" id="cd-s">--</div><div class="cd-u">seg</div></div>
+          </div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.35);text-align:center;margin-top:4px;">Lunes 25 de Mayo · 07:00 hrs</div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-n" id="stat-done">0</div><div class="stat-l">Temas</div></div>
+        <div class="stat-card"><div class="stat-n" id="stat-streak">0</div><div class="stat-l">Racha 🔥</div></div>
+        <div class="stat-card"><div class="stat-n" id="stat-acc">--%</div><div class="stat-l">Precisión</div></div>
+        <div class="stat-card"><div class="stat-n" id="stat-xp2">0</div><div class="stat-l">XP</div></div>
+      </div>
+      <div class="sec-hd">Módulos — 13 temas</div>
+      <div class="mod-list" id="mod-list"></div>
+    </div>
+
+    <!-- MODULE INNER -->
+    <div id="screen-module" class="screen">
+      <div class="mi-tabs" id="mi-tabs">
+        <button class="mi-tab active" onclick="switchMiTab('summary',this)">Resumen</button>
+        <button class="mi-tab" onclick="switchMiTab('exam',this)">Puntos clave</button>
+        <button class="mi-tab" onclick="switchMiTab('flash',this)">Flashcards</button>
+        <button class="mi-tab" onclick="switchMiTab('qs',this)">Preguntas</button>
+        <button class="mi-tab" onclick="switchMiTab('case',this)">Caso clínico</button>
+        <button class="mi-tab" onclick="switchMiTab('algo',this)">Algoritmo</button>
+      </div>
+      <div id="mi-body" class="mi-content"></div>
+    </div>
+
+    <!-- XABCDE -->
+    <div id="screen-xabcde" class="screen">
+      <div style="background:var(--navy);padding:16px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--gold2);letter-spacing:.06em;text-transform:uppercase;">Algoritmo xABCDE</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:4px;">Evaluación primaria · ATLS 11ª Ed.</div>
+      </div>
+      <div class="algo-page" id="xabcde-content"></div>
+    </div>
+
+    <!-- RAPID FIRE -->
+    <div id="screen-rapid" class="screen">
+      <div style="background:var(--navy);padding:16px;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--gold2);letter-spacing:.06em;text-transform:uppercase;">Fuego rápido</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.4);margin-top:4px;">Reconocimiento de patrones clínicos</div>
+      </div>
+      <div style="padding:16px;" id="rapid-body"></div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div id="screen-progress" class="screen">
+      <div class="prog-header">
+        <div class="prog-title">Tu progreso</div>
+        <div class="prog-sub">Segundo Parcial · Cirugía II</div>
+      </div>
+      <div id="prog-content"></div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottomnav">
+    <button class="bn-btn active" id="bn-home" onclick="navTo('home')">
+      <div class="bn-icon">🏠</div><div class="bn-label">Inicio</div>
+    </button>
+    <button class="bn-btn" id="bn-xabcde" onclick="navTo('xabcde')">
+      <div class="bn-icon">🚨</div><div class="bn-label">xABCDE</div>
+    </button>
+    <button class="bn-btn" id="bn-rapid" onclick="navTo('rapid')">
+      <div class="bn-icon">⚡</div><div class="bn-label">Rápido</div>
+    </button>
+    <button class="bn-btn" id="bn-progress" onclick="navTo('progress')">
+      <div class="bn-icon">📊</div><div class="bn-label">Progreso</div>
+    </button>
+  </nav>
+</div>
+
+<script>
+/* =================== DATA =================== */
+const MODULES = [
+  {
+    id:'trauma-proyectil', title:'Trauma por proyectil', icon:'🔫', color:'#c0392b',
+    sub:'Balística, PAAF, control de daños',
+    badge:'Alta prioridad', badgeClass:'pill-r',
+    summary:`<div class="body-p">El trauma por proyectil de arma de fuego (PAAF) genera daño tisular proporcional a la <strong>energía cinética</strong> (EC = ½mv²). La velocidad es el factor determinante — no la masa del proyectil.</div>
+    <div class="mnem">EC = ½mv² · A mayor velocidad → mayor destrucción tisular</div>
+    <div class="body-p">Existen dos tipos de cavitación: <strong>permanente</strong> (trayecto físico del proyectil) y <strong>temporal</strong> (onda de presión, mayor en proyectiles de alta velocidad).</div>
+    <div class="al al-d">⚠️ Toda herida abdominal por PAAF con inestabilidad hemodinámica requiere <strong>control de hemorragia y reanimación INMEDIATA</strong>. No TAC, no sutura inicial.</div>
+    <div class="al al-w">🔺 Tríada letal = Hipotermia + Acidosis + Coagulopatía → indicación de <strong>Cirugía de Control de Daños</strong></div>`,
+    examPoints:[
+      'La destrucción tisular depende principalmente de la <strong>energía cinética</strong> (EC = ½mv²).',
+      'Proyectil de alta velocidad genera cavitación temporal → mayor destrucción que el diámetro visible.',
+      'PAAF abdominal + hipotensión + taquicardia + piel fría = <strong>control de hemorragia primero</strong>.',
+      'Tríada letal (hipotermia + acidosis + coagulopatía) = indicación de <strong>cirugía de control de daños</strong>.',
+      'El orificio de entrada no predice la trayectoria interna ni el daño real.',
+      'Sangrado pulsátil en muslo post-PAAF = lesión de <strong>arteria femoral</strong>.',
+      'La prioridad inicial en PAAF abdominal con choque NO es la TAC.'
+    ],
+    flashcards:[
+      {q:'¿De qué depende principalmente la destrucción tisular en PAAF?',a:'De la energía cinética del proyectil (EC = ½mv²). La velocidad al cuadrado es el factor dominante.'},
+      {q:'¿Qué es la cavitación temporal?',a:'Onda de presión expansiva generada por el proyectil en movimiento, que destruye tejido más allá del trayecto visible. Mayor en proyectiles de alta velocidad.'},
+      {q:'¿Cuál es la estrategia quirúrgica ante tríada letal en trauma?',a:'Cirugía de Control de Daños (Damage Control Surgery): control hemostático mínimo → UCI para corrección → cirugía definitiva diferida.'},
+      {q:'PAAF muslo + sangrado pulsátil + choque → estructura lesionada',a:'Arteria femoral. El sangrado pulsátil indica lesión arterial.'},
+      {q:'¿Qué NO se debe hacer primero en PAAF abdominal con choque?',a:'NO solicitar TAC. La prioridad es control de hemorragia y reanimación.'}
+    ],
+    questions:[
+      {s:'Varón 25 años, PAAF abdomen, TA 80/50, FC 132, piel fría y diaforética.',q:'¿Cuál es la prioridad inicial en el manejo?',opts:['Tomografía abdominal urgente','Control de hemorragia y reanimación','Sutura de la herida de entrada','Colonoscopia diagnóstica'],c:1,exp:'En trauma penetrante abdominal con choque hemorrágico, la prioridad es el control de la hemorragia y la reanimación. El TAC queda diferido hasta la estabilización.'},
+      {s:null,q:'El grado de destrucción tisular en proyectiles de alta velocidad depende principalmente de:',opts:['Presión atmosférica ambiental','Energía cinética del proyectil','Temperatura corporal del paciente','Masa muscular en el trayecto'],c:1,exp:'La energía cinética (EC = ½mv²) determina el daño. En proyectiles de alta velocidad, la velocidad al cuadrado la hace exponencialmente mayor.'},
+      {s:'Paciente con PAAF abdominal. Intraoperatoriamente se detecta temperatura < 35°C, pH 7.1 y coagulopatía grave.',q:'¿Qué estrategia quirúrgica se debe implementar?',opts:['Cirugía reconstructiva definitiva completa','Cirugía laparoscópica diagnóstica','Cirugía de control de daños','Manejo conservador con UCI'],c:2,exp:'La tríada letal (hipotermia + acidosis + coagulopatía) contraindica la cirugía definitiva prolongada. La cirugía de control de daños controla el sangrado y la contaminación, difiriendo la reconstrucción.'},
+      {s:'Paciente con PAAF en muslo derecho, sangrado pulsátil abundante y signos de choque hipovolémico.',q:'¿Qué estructura probablemente está lesionada?',opts:['Nervio femoral','Arteria femoral','Vena safena mayor','Músculo sartorio'],c:1,exp:'El sangrado pulsátil indica lesión arterial. La arteria femoral es la estructura mayor del muslo y su lesión genera choque rápido.'}
+    ],
+    clinicalCases:[
+      {title:'Control de daños — PAAF abdominal',
+      scenario:'Masculino 30 años, PAAF en abdomen durante asalto. TA 85/55 mmHg, FC 128, piel fría. Orificio entrada en mesogastrio, sin salida. Abdomen rígido involuntario.',
+      steps:[
+        {q:'¿Cuál es el diagnóstico de choque en este momento?',opts:['Choque séptico','Choque cardiogénico','Choque hemorrágico clase III','Choque neurogénico'],c:2,exp:'FC >120, hipotensión, piel fría → choque hemorrágico clase III (pérdida estimada 1500-2000 ml).'},
+        {q:'¿Cuál es la prioridad inicial correcta?',opts:['TAC urgente','Laparoscopía diagnóstica','Control hemorragia + 2 accesos IV + reanimación hemostática','FAST antes de cualquier otra acción'],c:2,exp:'Trauma penetrante inestable: control de hemorragia y reanimación primero. FAST puede hacerse MIENTRAS se reanima.'},
+        {q:'Quirófano: temperatura 34.2°C, pH 7.08, TP >2x control. ¿Estrategia?',opts:['Reparación definitiva completa','Cirugía de control de daños','Cerrar sin cirugía y UCI','Laparoscopía de revisión'],c:1,exp:'Tríada letal → cirugía de control de daños: control hemostático + contaminación + abdomen abierto + UCI → cirugía definitiva 24-48h.'}
+      ]},
+      {title:'PAAF tórax — hemotórax masivo',
+      scenario:'Masculino 22 años, PAAF en tórax izquierdo. TA 95/60, FC 118, SpO2 91%. Disminución del murmullo vesicular izquierdo con matidez a la percusión. Sin desviación traqueal.',
+      steps:[
+        {q:'¿Cuál es el diagnóstico más probable?',opts:['Neumotórax a tensión izquierdo','Hemotórax izquierdo','Tamponade cardíaco','Contusión pulmonar aislada'],c:1,exp:'Disminución MV + MATIDEZ (no timpanismo) sin desviación traqueal = hemotórax. El neumotórax a tensión genera timpanismo y desviación contralateral.'},
+        {q:'El tubo de tórax drena 1,800 ml inmediatamente. ¿Conducta?',opts:['Observar evolución','Toracotomía urgente por hemotórax masivo','Segundo tubo contralateral','TAC de tórax con contraste'],c:1,exp:'>1,500 ml en drenaje inicial = hemotórax masivo = toracotomía urgente para control quirúrgico del sangrado.'},
+        {q:'El proyectil era de alta velocidad. ¿De qué depende la destrucción tisular más allá del trayecto?',opts:['Temperatura corporal','Energía cinética (cavitación temporal)','Presión atmosférica','Masa muscular'],c:1,exp:'La energía cinética (½mv²) genera cavitación temporal. A mayor velocidad, mayor destrucción más allá del trayecto visible.'}
+      ]},
+      {title:'Balística — lesión vascular en muslo',
+      scenario:'Masculino 35 años, PAAF en muslo derecho. Sangrado pulsátil abundante. TA 78/48, FC 142, piel fría. Orificio de entrada lateral, sin salida visible.',
+      steps:[
+        {q:'¿Qué estructura es la más probablemente lesionada?',opts:['Vena safena mayor','Nervio femoral','Arteria femoral','Vena femoral profunda'],c:2,exp:'Sangrado PULSÁTIL = lesión arterial. La arteria femoral es la estructura mayor del muslo y su lesión genera choque hemorrágico rápido.'},
+        {q:'¿Cuál es el control hemostático inmediato correcto?',opts:['Vendaje compresivo simple','Torniquete en raíz del muslo','Clamp vascular directo en urgencias','Compresión digital de la aorta'],c:1,exp:'Torniquete lo más proximal posible en extremidad. Documentar hora de colocación (máximo 2h antes de isquemia irreversible).'},
+        {q:'¿Cuál es el objetivo de TA sistólica con hemorragia no controlada activa (sin TCE)?',opts:['TA sistólica >120 mmHg','TA sistólica 80-90 mmHg (hipotensión permisiva)','TA sistólica <60 mmHg','TA no importa mientras se opera'],c:1,exp:'Hipotensión permisiva (80-90 mmHg): evita desalojar coágulos. CONTRAINDICADA si hay TCE asociado (requiere TA >90 para perfusión cerebral).'}
+      ]}
+    ],
+    algo:`<div class="algo-step"><div class="algo-n" style="color:#c0392b">X</div><div class="algo-text"><strong>Hemorragia externa masiva</strong> — Torniquete en extremidades. Compresión directa en junturas. PRIMERO antes de vía aérea.</div></div>
+    <div class="algo-step"><div class="algo-n">1</div><div class="algo-text"><strong>Control de hemorragia interna</strong> — Acceso IV x2 calibre 14-16G. Reanimación hemostática (1:1:1). FAST bedside.</div></div>
+    <div class="algo-step"><div class="algo-n">2</div><div class="algo-text"><strong>Decisión quirúrgica</strong> — Inestable persistente → quirófano SIN TAC. Estable → TAC para clasificar lesiones.</div></div>
+    <div class="algo-step"><div class="algo-n">3</div><div class="algo-text"><strong>Damage Control</strong> — Si tríada letal: control hemostático mínimo + cierre temporal + UCI + cirugía definitiva en 24-48h.</div></div>`
+  },
+  {
+    id:'intro-trauma', title:'Introducción al trauma', icon:'🚑', color:'#34495e',
+    sub:'Cinemática, epidemiología, mecanismo',
+    badge:'Base fundamental', badgeClass:'pill-b',
+    summary:`<div class="body-p">El trauma es la principal causa de muerte en personas de 1 a 44 años. El <strong>triángulo de la muerte preventible</strong> incluye: hemorragia no controlada, obstrucción de vía aérea y neumotórax a tensión.</div>
+    <div class="mnem">Triángulo preventible: Hemorragia · Vía aérea · Neumotórax tensión</div>
+    <div class="body-p">La <strong>cinemática del trauma</strong> permite predecir lesiones según el mecanismo. Un accidente frontal con cinturón genera fuerza sobre el abdomen → <strong>lesión esplénica o hepática</strong>. Sin cinturón: trauma facial, torácico, TCE.</div>
+    <div class="al al-i">💡 La evaluación primaria busca y trata <strong>amenazas inmediatas a la vida</strong>. La secundaria evalúa el paciente cabeza a pies.</div>
+    <div class="al al-w">⚠️ El principio fundamental del ATLS: tratar primero la <strong>mayor amenaza para la vida</strong>, aunque no sea el diagnóstico definitivo.</div>`,
+    examPoints:[
+      'El trauma es la primera causa de muerte en menores de 44 años.',
+      'La cinemática predice lesiones: <strong>colisión frontal + cinturón → lesión esplénica</strong>.',
+      'La evaluación primaria (xABCDE) identifica y trata amenazas inmediatas a la vida. La X precede al ABCDE: control de hemorragia externa masiva PRIMERO.',
+      'Principio ATLS: tratar la <strong>mayor amenaza para la vida primero</strong>.',
+      'La evaluación secundaria (cabeza a pies) se realiza DESPUÉS de estabilizar al paciente.',
+      'La "hora dorada" no es un tiempo fijo, es un concepto de urgencia en la atención.',
+      'FAST (Focused Assessment with Sonography for Trauma) es parte de la evaluación inicial.'
+    ],
+    flashcards:[
+      {q:'¿Qué predice la cinemática en colisión frontal con cinturón de seguridad?',a:'Lesión esplénica o hepática por compresión del abdomen contra el cinturón. El intestino delgado y mesentérico también pueden lesionarse.'},
+      {q:'¿Cuál es el principio fundamental del ATLS?',a:'Identificar y tratar primero la mayor amenaza para la vida. El algoritmo xABCDE (ATLS 11ª ed.) refleja las prioridades: X=hemorragia externa masiva, luego A-B-C-D-E.'},
+      {q:'¿Qué incluye el "triángulo de muertes prevenibles" en trauma?',a:'1. Hemorragia no controlada, 2. Obstrucción de vía aérea, 3. Neumotórax a tensión.'},
+      {q:'¿Cuándo se realiza la evaluación secundaria?',a:'DESPUÉS de completar y estabilizar la evaluación primaria (xABCDE). Es la revisión completa cabeza a pies.'}
+    ],
+    questions:[
+      {s:'Paciente politraumatizado inconsciente llega a urgencias post-accidente.',q:'¿Cuál es la prioridad inicial?',opts:['Historia clínica detallada','xABCDE del trauma','TAC cerebral','Radiografía de tórax'],c:1,exp:'El xABCDE del trauma es siempre la primera acción en el paciente traumatizado, independientemente del mecanismo.'},
+      {s:'Paciente accidente automovilístico frontal con cinturón. Dolor abdominal y equimosis abdominal.',q:'¿Cuál es la lesión más probable según la cinemática?',opts:['Lesión esplénica','Neumonía','Fractura nasal','Luxación de hombro'],c:0,exp:'El cinturón de seguridad en colisión frontal concentra fuerza en el abdomen superior, siendo el bazo el órgano más frecuentemente lesionado.'},
+      {s:null,q:'¿Cuál es el principio fundamental de la evaluación primaria del ATLS?',opts:['Realizar estudios de laboratorio completos','Identificar y tratar primero la mayor amenaza para la vida','Solicitar TAC de cuerpo completo','Completar la historia clínica'],c:1,exp:'El ATLS establece que la prioridad es tratar primero lo que puede matar primero, aunque no sea el diagnóstico definitivo.'}
+    ],
+    clinicalCases:[
+      {title:'Cinemática — colisión frontal',
+      scenario:'Femenina 28 años, colisión frontal a 80 km/h, cinturón puesto, airbag desplegado. TA 105/70, FC 102, dolor abdominal mayor en hipocondrio izquierdo.',
+      steps:[
+        {q:'¿Cuál es el órgano más probable según la cinemática?',opts:['Hígado (derecho)','Bazo (izquierdo)','Páncreas','Riñón derecho'],c:1,exp:'Cinturón + colisión frontal + hipocondrio izquierdo = lesión esplénica hasta demostrar lo contrario.'},
+        {q:'¿Cuál es el primer paso diagnóstico?',opts:['Laparotomía inmediata','FAST en urgencias','Radiografía simple abdominal','Observar 12 horas'],c:1,exp:'FAST es el primer estudio en trauma abdominal cerrado con sospecha de lesión visceral. Rápido, bedside, sin radiación.'},
+        {q:'FAST muestra líquido en espacio esplenorrenal. Paciente estable. ¿Conducta?',opts:['Alta ambulatoria','TAC abdominal con contraste para clasificar','Laparotomía urgente sin TAC','Arteriografía diagnóstica'],c:1,exp:'FAST(+) + estabilidad = TAC con contraste para clasificar la lesión y decidir manejo conservador vs quirúrgico.'}
+      ]},
+      {title:'Colisión lateral — sin cinturón',
+      scenario:'Masculino 32 años, conductor, impacto lateral derecho a 70 km/h, sin cinturón de seguridad. Traído inconsciente por testigos. Glasgow 10, TA 110/75, FC 108. TCE aparente, tórax derecho con crepitación costal.',
+      steps:[
+        {q:'Sin cinturón en colisión lateral, ¿qué patrón de lesiones predice la cinemática?',opts:['Solo fractura de costillas izquierdas','Trauma hepático (derecho) + costillas derechas + posible TCE','Lesión esplénica exclusiva','Solo trauma pélvico'],c:1,exp:'Impacto lateral derecho sin cinturón: el cuerpo se desplaza hacia el impacto → trauma hepático (hipocondrio derecho) + fracturas costales ipsilaterales + riesgo de TCE por desplazamiento craneal.'},
+        {q:'¿Qué componente del xABCDE corresponde a evaluar el Glasgow 10 y la orientación?',opts:['A — vía aérea','B — ventilación','C — circulación','D — disability (neurológico)'],c:3,exp:'D del xABCDE = Disability (evaluación neurológica rápida): Glasgow, pupilas, nivel de conciencia, déficit motor.'},
+        {q:'Crepitación en 4 costillas derechas + SpO2 91%. ¿Qué lesión se debe descartar urgente?',opts:['Hematoma de pared torácica','Neumotórax a tensión o hemotórax','Fractura de clavícula asociada','Contusión costal simple'],c:1,exp:'Fracturas múltiples costales + desaturación en trauma torácico = descartar neumotórax o hemotórax. Auscultar ambos campos + FAST torácico + radiografía de tórax.'}
+      ]},
+      {title:'Prioridades en trauma — evaluación primaria',
+      scenario:'Masculino 45 años, trabajador de construcción, caída de 6 metros. Inconsciente al llegar. Hemorragia activa en antebrazo derecho, FR 30, SpO2 90%, FC 130, TA 88/60.',
+      steps:[
+        {q:'Según el xABCDE, ¿cuál es la primera prioridad absoluta?',opts:['Intubar por Glasgow bajo e inconsciente','Controlar la hemorragia del antebrazo (X — hemorragia externa masiva)','Solicitar TAC de cuerpo completo','Colocar collar cervical'],c:1,exp:'X del xABCDE: controlar hemorragia externa masiva PRIMERO. Luego A (vía aérea). Esto es la actualización ATLS 11ª edición.'},
+        {q:'Hemorragia controlada. Paciente inconsciente, FR 30, SpO2 90%. ¿Siguiente en A?',opts:['Oxígeno por puntas nasales','Mascarilla simple de oxígeno','Intubación orotraqueal inmediata','Esperar Glasgow para decidir'],c:2,exp:'Inconsciente = Glasgow 3-8 + FR 30 con SpO2 baja = intubación orotraqueal. No esperar cuantificar el Glasgow cuando el paciente está inconsciente.'},
+        {q:'¿Cómo se denomina la evaluación sistemática que identifica amenazas inmediatas a la vida en trauma?',opts:['Evaluación secundaria','Evaluación terciaria','Evaluación primaria del trauma','Evaluación diferida'],c:2,exp:'Evaluación PRIMARIA del trauma: el enfoque xABCDE que identifica y trata las amenazas inmediatas a la vida en el orden correcto de prioridad.'}
+      ]}
+    ],
+    algo:`<div class="algo-step"><div class="algo-n" style="color:#c0392b">X</div><div class="algo-text"><strong>Control de hemorragia externa masiva</strong> — Primera prioridad absoluta (ATLS 11ª ed.)</div></div>
+    <div class="algo-step"><div class="algo-n">A</div><div class="algo-text"><strong>Vía aérea</strong> — ¿Permeable? ¿Habla? → Sí: continúa. No: maniobras + intubación.</div></div>
+    <div class="algo-step"><div class="algo-n">B</div><div class="algo-text"><strong>Ventilación</strong> — Ausculta ambos campos. Descarta neumotórax a tensión.</div></div>
+    <div class="algo-step"><div class="algo-n">C</div><div class="algo-text"><strong>Circulación</strong> — FC, TA, piel. Control hemorragia interna. Acceso IV.</div></div>
+    <div class="algo-step"><div class="algo-n">D</div><div class="algo-text"><strong>Neurológico</strong> — Glasgow, pupilas, AVDI.</div></div>
+    <div class="algo-step"><div class="algo-n">E</div><div class="algo-text"><strong>Exposición</strong> — Desvestir completo. Prevenir hipotermia. Temperatura &lt; 35°C = hipotermia.</div></div>`
+  },
+  {
+    id:'via-aerea', title:'Vía aérea', icon:'🫁', color:'#2980b9',
+    sub:'Manejo, intubación, indicaciones',
+    badge:'Alta prioridad', badgeClass:'pill-r',
+    summary:`<div class="body-p">La vía aérea es la A del xABCDE — segunda prioridad después del control de hemorragia externa masiva (X). Los signos de obstrucción incluyen: <strong>gorgoteo, estridor, disfonía, agitación</strong> y disminución del nivel de conciencia.</div>
+    <div class="mnem">Glasgow ≤ 8 = Intubación orotraqueal inmediata</div>
+    <div class="body-p">En trauma, toda maniobra de vía aérea se realiza con <strong>control cervical inline</strong> hasta descartar lesión de columna cervical.</div>
+    <div class="al al-d">⚠️ Indicaciones absolutas de intubación: GCS ≤ 8, apnea, obstrucción inminente, quemadura inhalatoria, FR < 10 o > 29.</div>
+    <div class="al al-i">💡 Vía aérea quirúrgica (cricotiroidotomía): cuando falla la intubación y hay obstrucción. "Can't intubate, can't oxygenate".</div>`,
+    examPoints:[
+      '<strong>Glasgow ≤ 8</strong> = indicación absoluta de intubación orotraqueal.',
+      'Gorgoteo = líquido en vía aérea → aspiración + posicionamiento + intubación.',
+      'Estridor = obstrucción parcial por encima de la glotis.',
+      'Toda intubación en trauma con control cervical inline (no se retira el collar).',
+      'Cricotiroidotomía = vía aérea de rescate quirúrgica.',
+      'Quemadura inhalatoria → intubación temprana ANTES de que el edema cierre la vía aérea.',
+      'Técnica RSI (Rapid Sequence Intubation) es el estándar en trauma.'
+    ],
+    flashcards:[
+      {q:'¿Cuál es el signo de obstrucción de vía aérea que indica líquido?',a:'Gorgoteo (gurgling). Indica líquido (sangre, secreciones) en la vía aérea proximal. Requiere aspiración inmediata.'},
+      {q:'¿A qué Glasgow se indica intubación orotraqueal?',a:'Glasgow igual o menor a 8. El paciente no puede proteger su propia vía aérea.'},
+      {q:'¿Por qué se intuba tempranamente en quemadura inhalatoria?',a:'El edema laríngeo progresivo puede cerrar la vía aérea en horas. La intubación temprana previene la pérdida de acceso en momento crítico.'},
+      {q:'¿Qué es "Can\'t intubate, can\'t oxygenate"?',a:'Escenario de vía aérea difícil fallida donde se procede a cricotiroidotomía (vía aérea quirúrgica de urgencia).'},
+      {q:'¿Cómo se protege la columna cervical durante la intubación en trauma?',a:'Con control cervical inline manual (un asistente sostiene la cabeza en posición neutra) mientras se retira temporalmente el collar.'}
+    ],
+    questions:[
+      {s:'Paciente con trauma craneal, Glasgow 6, sin respuesta verbal, extensión al dolor.',q:'¿Qué intervención se debe realizar de inmediato?',opts:['Oxígeno nasal 4 L/min','Intubación orotraqueal','Observación en urgencias','Analgésicos IV'],c:1,exp:'Glasgow 6 = indicación absoluta de intubación. El paciente no puede proteger su vía aérea.'},
+      {s:'Paciente con trauma, gorgoteo respiratorio y deterioro del nivel de conciencia.',q:'¿Qué indica el gorgoteo respiratorio?',opts:['Obstrucción de vía aérea por líquido','Trauma renal','Neumotórax','Hemotórax'],c:0,exp:'El gorgoteo indica líquido (sangre/secreciones) en la vía aérea proximal. Requiere aspiración y manejo inmediato de la vía aérea.'},
+      {s:'Paciente con quemadura facial extensa y ronquera progresiva.',q:'¿Cuál es la conducta correcta?',opts:['Esperar evolución 24 horas','Intubar de manera electiva en quirófano en 6 horas','Intubación temprana inmediata antes de que el edema progrese','Solo oxígeno por mascarilla'],c:2,exp:'La quemadura inhalatoria puede generar edema laríngeo que cierra la vía aérea progresivamente. La intubación temprana previene la pérdida del acceso.'},
+      {s:null,q:'¿Cómo se denomina la maniobra de emergencia cuando se falla la intubación y no se puede oxigenar?',opts:['Laringoscopía directa repetida','Mascarilla laríngea permanente','Cricotiroidotomía','Intubación nasotraqueal'],c:2,exp:'Cricotiroidotomía es la vía aérea quirúrgica de emergencia en el escenario "can\'t intubate, can\'t oxygenate".'}
+    ],
+    clinicalCases:[
+      {title:'Vía aérea difícil — trauma facial',
+      scenario:'Masculino 45 años, accidente motocicleta, trauma facial severo con fracturas maxilofaciales. Sangrado activo en orofaringe. Glasgow 10, FR 26, SpO2 89%, estridor audible. Cuello corto y grueso.',
+      steps:[
+        {q:'¿Cuál es el riesgo inminente más importante?',opts:['Infección de heridas faciales','Obstrucción de vía aérea inminente','Hemorragia intraabdominal','Fractura cervical desapercibida'],c:1,exp:'Estridor + sangrado orofaríngeo + SpO2 89% = obstrucción de vía aérea inminente. Prioridad absoluta.'},
+        {q:'¿Cuál es la primera maniobra correcta?',opts:['Radiografía cervical antes de intubar','Aspirar + pre-oxigenar + intubación secuencia rápida con control cervical','TAC facial urgente','Hemostasia facial quirúrgica'],c:1,exp:'Aspirar vía aérea, pre-oxigenar, intubar RSI con control cervical inline (laringoscopía + asistente sujetando cabeza en neutro).'},
+        {q:'Tres intentos de intubación fallidos. SpO2 cae a 78%. ¿Siguiente paso?',opts:['Ventilación bolsa-mascarilla indefinida','Cricotiroidotomía de urgencia','Traqueostomía electiva en quirófano','Mascarilla de oxígeno simple y esperar'],c:1,exp:'Fallo de intubación + desaturación grave = can\'t intubate, can\'t oxygenate = cricotiroidotomía de urgencia. No hay tiempo para traqueostomía.'}
+      ]},
+      {title:'Gorgoteo y deterioro de conciencia',
+      scenario:'Femenina 55 años, atropellada. Traída por testigos. En urgencias: Glasgow 9 y cayendo, gorgoteo respiratorio audible sin equipo, FR 28 superficial, SpO2 86%, sangrado activo en cavidad oral, mandíbula inestable a la palpación.',
+      steps:[
+        {q:'El gorgoteo respiratorio en este contexto indica:',opts:['Broncoespasmo severo','Líquido en vía aérea proximal con riesgo de obstrucción','Neumotórax bilateral','Edema pulmonar cardiogénico'],c:1,exp:'Gorgoteo = líquido (sangre/secreciones) en vía aérea proximal. Riesgo inmediato de obstrucción total. Aspiración y manejo de vía aérea definitiva urgente.'},
+        {q:'Glasgow 9 y descendiendo. ¿Qué indica esto respecto a la vía aérea?',opts:['Puede proteger su vía aérea — observar','Glasgow >8 — no indica intubación todavía','Inminente incapacidad para proteger vía aérea — intubar ya','Solo requiere posición lateral de seguridad'],c:2,exp:'Glasgow 9 cayendo = perderá la capacidad de proteger su vía aérea en minutos. No esperar a que llegue a 8. Intubación inmediata preventiva.'},
+        {q:'¿Cómo se protege la columna cervical durante la intubación con mandíbula inestable?',opts:['No se puede intubar — cricotiroidotomía directa','Control cervical inline manual por asistente mientras se realiza laringoscopía','Collar cervical puesto sin modificar durante intubación','Técnica nasotraqueal a ciegas'],c:1,exp:'Control cervical inline manual: un asistente sostiene la cabeza en posición neutra mientras se retira temporalmente el collar anterior para abrir la boca y realizar laringoscopía.'}
+      ]},
+      {title:'Quemadura — vía aérea por inhalación',
+      scenario:'Masculino 38 años, bombero, rescatado de incendio en bodega cerrada. Consciencia conservada, voz ronca progresiva, cejas y vibrisas nasales chamuscadas, hollín visible en orofaringe, estridor inspiratorio leve. SpO2 95%, FR 22.',
+      steps:[
+        {q:'¿Cuál es el diagnóstico?',opts:['Bronquitis aguda por irritantes','Lesión por inhalación con riesgo de obstrucción laríngea','Laringitis viral','Neumonía química'],c:1,exp:'Hollín en vía aérea + ronquera + cejas chamuscadas + estridor = lesión por inhalación. El edema laríngeo puede cerrar la vía aérea progresivamente en horas.'},
+        {q:'SpO2 95% y estridor leve. ¿Se puede esperar evolución?',opts:['Sí — SpO2 aceptable, observar 6 horas','No — intubar ahora antes de que el edema cierre la vía aérea','Sí — si mejora no necesita intubación','No — traqueostomía directa es mejor'],c:1,exp:'NUNCA esperar en lesión por inhalación. El edema laríngeo es progresivo e impredecible. La intubación TEMPRANA (cuando aún es posible) es el estándar de atención.'},
+        {q:'¿Cuál es la indicación de intubación en este paciente según los criterios del ATLS?',opts:['Solo si SpO2 <90%','Solo si Glasgow ≤8','Presencia de lesión por inhalación confirmada con riesgo de obstrucción','Solo si la radiografía muestra infiltrados'],c:2,exp:'Lesión por inhalación con signos de afectación laríngea (ronquera, estridor, hollín) = indicación de intubación temprana independientemente de la SpO2 actual.'}
+      ]}
+    ],
+    algo:`<div class="algo-step"><div class="algo-n" style="color:#2980b9">1</div><div class="algo-text"><strong>Evaluación</strong> — ¿Habla con voz normal? Sí → VA permeable por ahora. No → actúa.</div></div>
+    <div class="algo-step"><div class="algo-n">2</div><div class="algo-text"><strong>Signos de alarma</strong> — Gorgoteo → aspirar. Estridor → obstrucción parcial. Glasgow ≤ 8 → intubar.</div></div>
+    <div class="algo-step"><div class="algo-n">3</div><div class="algo-text"><strong>Maniobras iniciales</strong> — Elevación mentón / subluxación mandibular. Control cervical inline.</div></div>
+    <div class="algo-step"><div class="algo-n">4</div><div class="algo-text"><strong>Intubación RSI</strong> — Preoxigenar 3-5 min. Cricoides. Laringoscopía. Confirmar capnografía.</div></div>
+    <div class="algo-step"><div class="algo-n">5</div><div class="algo-text"><strong>Fallo de intubación</strong> — Videolaringoscopía → mascarilla laríngea → cricotiroidotomía.</div></div>`
+  },
+  {
+    id:'estado-choque', title:'Estado de choque', icon:'💉', color:'#8e44ad',
+    sub:'Clasificación, diagnóstico, manejo',
+    badge:'Alta prioridad', badgeClass:'pill-r',
+    summary:`<div class="body-p">El choque hemorrágico es la causa más frecuente de choque en trauma (>90%). Se define como perfusión tisular inadecuada. En trauma se clasifica en 4 clases según la pérdida sanguínea.</div>
+    <div class="mnem">Hemorrágico · Neurogénico · Obstructivo · Distributivo · Cardiogénico</div>
+    <div class="al al-d">⚠️ Choque neurogénico: ÚNICA excepción — cursa con <strong>BRADICARDIA</strong> en vez de taquicardia. Es por lesión medular con pérdida del tono simpático.</div>
+    <table class="dt"><tr><th>Clase</th><th>Pérdida</th><th>FC</th><th>TA</th><th>Estado</th></tr>
+    <tr><td>I</td><td>&lt;750 ml</td><td>&lt;100</td><td>Normal</td><td>Normal</td></tr>
+    <tr><td>II</td><td>750-1500</td><td>100-120</td><td>Normal</td><td>Ansioso</td></tr>
+    <tr><td>III</td><td>1500-2000</td><td>120-140</td><td>↓</td><td>Confuso</td></tr>
+    <tr><td>IV</td><td>&gt;2000</td><td>&gt;140</td><td>↓↓</td><td>Letárgico</td></tr></table>`,
+    examPoints:[
+      'Choque hemorrágico = causa más frecuente en trauma.',
+      'Tríada clásica: <strong>hipotensión + taquicardia + piel fría</strong>.',
+      'Choque neurogénico = hipotensión + <strong>BRADICARDIA</strong> (el único con bradicardia).',
+      'Clase III: pérdida de 1500-2000 ml, hipotensión, FC 120-140, confusión.',
+      'Reanimación hemostática: sangre + plasma + plaquetas (ratio 1:1:1).',
+      'Hipotensión permisiva en hemorragia no controlada (TA sistólica 80-90 mmHg).',
+      'El choque no siempre cursa con hipotensión inicial (compensado en clases I-II).'
+    ],
+    flashcards:[
+      {q:'¿Cuál es el único tipo de choque en trauma que cursa con bradicardia?',a:'Choque neurogénico. Por lesión medular con pérdida del tono simpático. El resto (hemorrágico, cardiogénico, séptico) cursan con taquicardia compensatoria.'},
+      {q:'¿Cuáles son las 4 clases de choque hemorrágico y sus umbrales de pérdida?',a:'Clase I: <750 ml; Clase II: 750-1500 ml; Clase III: 1500-2000 ml (hipotensión); Clase IV: >2000 ml (colapso).'},
+      {q:'¿Qué es la reanimación hemostática 1:1:1?',a:'Transfusión de glóbulos rojos empaquetados + plasma fresco congelado + plaquetas en proporción 1:1:1 para simular sangre completa y controlar la coagulopatía de la hemorragia masiva.'},
+      {q:'¿Cuándo aplica la hipotensión permisiva?',a:'En hemorragia activa no controlada, se acepta TA sistólica de 80-90 mmHg para no desalojar coágulos. Contraindicada en TCE.'},
+      {q:'¿Qué diferencia el choque hemorrágico del séptico en trauma agudo?',a:'El séptico no es inmediato en trauma agudo (requiere tiempo). La fiebre orienta a séptico. En trauma agudo presume hemorrágico hasta demostrar lo contrario.'}
+    ],
+    questions:[
+      {s:'Politraumatizado: TA 85/60, FC 130, piel fría, confusión.',q:'¿Cuál es la causa más probable de choque?',opts:['Choque cardiogénico','Choque neurogénico','Choque hemorrágico','Choque séptico'],c:2,exp:'En trauma agudo con hipotensión + taquicardia + piel fría, el choque hemorrágico es la causa en >90% de los casos.'},
+      {s:'Paciente con trauma medular cervical completo, hipotensión y frecuencia cardíaca de 55 lpm.',q:'¿Cuál es el diagnóstico?',opts:['Choque neurogénico','Choque hemorrágico','Choque cardiogénico','Síncope vasovagal'],c:0,exp:'Trauma medular + hipotensión + BRADICARDIA = choque neurogénico. Es el único tipo de choque en trauma que cursa con bradicardia.'},
+      {s:null,q:'¿En qué clase de choque hemorrágico aparece la hipotensión arterial?',opts:['Clase I','Clase II','Clase III','Clase IV'],c:2,exp:'La hipotensión aparece en clase III (pérdida de 1500-2000 ml, 30-40% de la volemia). Las clases I y II son compensadas con taquicardia.'},
+      {s:null,q:'¿Cuál es la proporción recomendada en reanimación hemostática para hemorragia masiva?',opts:['Solo cristaloides','3:1:1 GR:PFC:plaquetas','1:1:1 GR:PFC:plaquetas','2 litros de cristaloides, luego sangre'],c:2,exp:'La reanimación hemostática 1:1:1 (GR:PFC:plaquetas) previene la coagulopatía dilucional y simula sangre completa.'}
+    ],
+    clinicalCases:[
+      {title:'Choque hemorrágico clase III — politraumatizado',
+      scenario:'Masculino 22 años, motociclista, trauma múltiple. Glasgow 12, TA 75/50, FC 138, FR 28, temperatura 35.8°C, palidez, llenado capilar >3 seg. Abdomen rígido, pelvis inestable a la compresión.',
+      steps:[
+        {q:'¿Cuál es la clase de choque hemorrágico?',opts:['Clase I compensado','Clase II moderado','Clase III grave','Clase IV exsanguinante'],c:2,exp:'FC 138, hipotensión, Glasgow 12, llenado >3s → pérdida estimada 1500-2000 ml = clase III.'},
+        {q:'¿Cuáles son los dos focos de sangrado a controlar simultáneamente?',opts:['Solo el abdominal','Solo el pélvico','Abdomen Y pelvis (ambos potencialmente activos)','Solo sangrado externo visible'],c:2,exp:'Abdomen rígido = hemoperitoneo. Pelvis inestable = puede acumular >3000 ml. Ambos focos simultáneos = choque refractario.'},
+        {q:'Temperatura 35.8°C, pH 7.20. ¿Qué tríada se está iniciando?',opts:['Tríada de Beck (tamponade)','Tríada letal del trauma (hipotermia+acidosis+coagulopatía)','Tríada de Charcot','Tríada de Cushing'],c:1,exp:'Hipotermia (<35°C) + acidosis + coagulopatía = tríada letal del trauma. Prevenir: fluidos calientes, reanimación hemostática 1:1:1, ácido tranexámico.'}
+      ]},
+      {title:'Choque neurogénico vs hemorrágico',
+      scenario:'Masculino 28 años, caída de 4 metros, trauma medular dorsal D4. En urgencias: TA 72/45, FC 52, extremidades calientes y rosadas, no hay sangrado externo visible. Glasgow 15. Sin movilidad en extremidades inferiores.',
+      steps:[
+        {q:'¿Cuál es el tipo de choque presente?',opts:['Choque hemorrágico — buscar sangrado oculto','Choque neurogénico — lesión medular con pérdida de tono simpático','Choque cardiogénico — contusión miocárdica','Choque séptico — contaminación por caída'],c:1,exp:'Lesión medular D4 + hipotensión + BRADICARDIA (FC 52) + extremidades calientes vasodilatadas = choque neurogénico. Es el ÚNICO con bradicardia en trauma.'},
+        {q:'¿Cuál es la diferencia clínica clave entre choque neurogénico y hemorrágico?',opts:['La presión arterial','La frecuencia respiratoria','El neurogénico tiene BRADICARDIA, el hemorrágico tiene TAQUICARDIA','La temperatura corporal'],c:2,exp:'La bradicardia es el signo diferenciador. El choque hemorrágico tiene taquicardia compensatoria. El neurogénico pierde el tono simpático y tiene bradicardia + vasodilatación.'},
+        {q:'¿Cuál es el tratamiento del choque neurogénico?',opts:['Volumen masivo con cristaloides 3-4 litros','Vasopresores (norepinefrina) + volumen conservador','Transfusión masiva 1:1:1','Adrenalina IV en bolo'],c:1,exp:'Vasopresores (norepinefrina) para restaurar el tono vascular perdido. El volumen excesivo puede generar edema pulmonar neurogénico. No es choque hemorrágico — no tratar como tal.'}
+      ]},
+      {title:'Clasificación del choque — caso integrador',
+      scenario:'Masculino 50 años, trauma torácico cerrado en accidente vial. En urgencias: TA 85/70, FC 48, venas del cuello distendidas, ruidos cardíacos muy apagados, piel normal. Sin hemorragia externa. Glasgow 15.',
+      steps:[
+        {q:'El patrón TA 85/70 + FC 48 + ingurgitación yugular + ruidos velados sugiere:',opts:['Choque hemorrágico clase III','Choque neurogénico por fractura costal','Tamponade cardíaco (tríada de Beck)','Choque séptico temprano'],c:2,exp:'Tríada de Beck: hipotensión + ingurgitación yugular (no puede llenarse el corazón) + ruidos velados = tamponade cardíaco. No es choque hemorrágico (bradicardia relativa, sin sangrado externo).'},
+        {q:'¿Cuál es el tratamiento inmediato del tamponade?',opts:['Volumen IV masivo','Pericardiocentesis subxifoidea','Toracotomía exploratoria','Tubo de tórax bilateral'],c:1,exp:'Pericardiocentesis subxifoidea: aspirar líquido pericárdico para descomprimir. En trauma penetrante, puede ser ventana pericárdica o toracotomía directa.'},
+        {q:'¿En qué se diferencia el choque obstructivo por tamponade del hemorrágico en trauma?',opts:['Solo en la presión arterial','El tamponade tiene ingurgitación yugular, el hemorrágico NO (venas planas por hipovolemia)','No hay diferencia clínica','El hemorrágico tiene yugulares distendidas'],c:1,exp:'En tamponade las yugulares están distendidas (el corazón no puede recibir retorno venoso). En choque hemorrágico las venas están colapsadas por hipovolemia.'}
+      ]}
+    ],
+    algo:`<div class="algo-step"><div class="algo-n" style="color:#8e44ad">1</div><div class="algo-text"><strong>Identificar tipo</strong> — Trauma = presume hemorrágico. Medular + bradicardia = neurogénico.</div></div>
+    <div class="algo-step"><div class="algo-n">2</div><div class="algo-text"><strong>Clasificar</strong> — FC, TA, estado mental, llenado capilar → clase I-IV.</div></div>
+    <div class="algo-step"><div class="algo-n">3</div><div class="algo-text"><strong>Control de hemorragia</strong> — Torniquete, compresión, pelvis binder, FAST, decisión quirúrgica.</div></div>
+    <div class="algo-step"><div class="algo-n">4</div><div class="algo-text"><strong>Reanimación</strong> — 1:1:1 hemostática. Ácido tranexámico <3h del trauma. Evitar cristaloides masivos.</div></div>
+    <div class="algo-step"><div class="algo-n">5</div><div class="algo-text"><strong>Monitoreo</strong> — Lactato, pH, temperatura. Prevenir tríada letal.</div></div>`
+  },
+  {
+    id:'trauma-torax', title:'Trauma de tórax', icon:'💨', color:'#16a085',
+    sub:'Neumotórax a tensión, hemotórax, lesiones',
+    badge:'Alta prioridad', badgeClass:'pill-r',
+    summary:`<div class="body-p">El trauma torácico causa el 25% de muertes por trauma. Las <strong>6 lesiones letales inmediatas</strong> (Big 6) deben identificarse en la evaluación primaria.</div>
+    <div class="mnem">Big 6: Obstrucción VA · Neumotórax tensión · Hemotórax masivo · Tórax inestable · Tamponade · Neumotórax abierto</div>
+    <div class="al al-d">⚠️ Neumotórax a tensión: tríada clásica = <strong>ausencia de murmullo + hipotensión + desviación traqueal CONTRALATERAL</strong>. Descompresión inmediata sin esperar TAC.</div>
+    <div class="al al-i">💡 Tamponade cardíaco (tríada de Beck): <strong>hipotensión + ingurgitación yugular + ruidos cardíacos velados</strong>.</div>`,
+    examPoints:[
+      'Neumotórax a tensión: ausencia de MV + hipotensión + <strong>desviación traqueal contralateral</strong>.',
+      'Descompresión inmediata con aguja en 2° espacio intercostal, línea medioclavicular.',
+      'Hemotórax masivo: >1500 ml inicial o >200 ml/h → indicación quirúrgica.',
+      'Tamponade de Beck: <strong>hipotensión + ingurgitación yugular + ruidos velados</strong>.',
+      'Tórax inestable (flail chest): 3+ costillas fracturadas en 2+ lugares → movimiento paradójico.',
+      'Neumotórax abierto: parche de 3 puntas para no crear válvula.',
+      'Contusión miocárdica: sospechar en trauma esternal frontal → ECG y troponinas.'
+    ],
+    flashcards:[
+      {q:'¿Cuál es la tríada clásica del neumotórax a tensión?',a:'1. Ausencia de murmullo vesicular ipsilateral, 2. Hipotensión, 3. Desviación traqueal CONTRALATERAL. Emergencia que requiere descompresión inmediata.'},
+      {q:'¿Qué es la tríada de Beck?',a:'Tríada del tamponade cardíaco: hipotensión + ingurgitación yugular + ruidos cardíacos velados (apagados). Se trata con pericardiocentesis.'},
+      {q:'¿Cuánto sangrado indica hemotórax masivo?',a:'>1500 ml en drenaje inicial de tubo de tórax, o >200 ml/hora por 2-4 horas. Indicación de toracotomía.'},
+      {q:'¿Cómo se aplica el parche en neumotórax abierto?',a:'Parche oclusivo sellado en 3 lados (3-sided seal / parche de 3 puntas) para prevenir que se convierta en neumotórax a tensión.'},
+      {q:'¿Cuál es el tratamiento inmediato del neumotórax a tensión?',a:'Toracocentesis descompresiva con aguja: 2° espacio intercostal, línea medioclavicular, borde superior de la 3ª costilla. Seguida de tubo de tórax.'}
+    ],
+    questions:[
+      {s:'Paciente con PAAF en tórax derecho, disnea intensa, hipotensión, ausencia de ruidos respiratorios derechos y desviación traqueal hacia la izquierda.',q:'¿Cuál es el diagnóstico más probable?',opts:['Hemotórax masivo','Neumotórax a tensión','Contusión pulmonar','Atelectasia'],c:1,exp:'Neumotórax a tensión: ausencia de MV ipsilateral + hipotensión + desviación traqueal CONTRALATERAL. Requiere descompresión inmediata.'},
+      {s:null,q:'¿Cuál es el tratamiento inmediato del neumotórax a tensión?',opts:['TAC de tórax urgente','Toracocentesis descompresiva con aguja','Intubación orotraqueal','Pericardiocentesis'],c:1,exp:'La toracocentesis con aguja (2° EIC, LMC) es el tratamiento inmediato. No esperar TAC. La descompresión puede ser salvavidas en segundos.'},
+      {s:'Paciente con trauma torácico, hipotensión, ingurgitación yugular y ruidos cardíacos muy apagados.',q:'¿Cuál es el diagnóstico?',opts:['Hemotórax masivo','Neumotórax a tensión','Tamponade cardíaco','Contusión miocárdica'],c:2,exp:'Tríada de Beck: hipotensión + ingurgitación yugular + ruidos velados = tamponade cardíaco.'},
+      {s:null,q:'¿Cuánto sangrado en la toracocentesis inicial define hemotórax masivo?',opts:['500 ml','1000 ml','>1500 ml','>3000 ml'],c:2,exp:'>1500 ml en drenaje inicial, o >200 ml/h por 2-4 horas, define hemotórax masivo y es indicación de toracotomía.'}
+    ],
+    clinicalCases:[
+      {title:'Neumotórax a tensión — PAAF',
+      scenario:'Masculino 35 años, PAAF tórax izquierdo. Intubado en escena. SpO2 82%, ausencia MV hemitórax izquierdo, desviación traqueal a derecha, TA 70/40, FC 145, yugulares ingurgitadas.',
+      steps:[
+        {q:'¿Cuál es el diagnóstico inmediato?',opts:['Hemotórax masivo izquierdo','Neumotórax a tensión izquierdo','Contusión pulmonar bilateral','Tamponade cardíaco'],c:1,exp:'Ausencia MV ipsilateral + hipotensión + desviación traqueal CONTRALATERAL = neumotórax a tensión. Emergencia absoluta.'},
+        {q:'¿Cuál es el tratamiento inmediato?',opts:['TAC de tórax urgente','Toracocentesis descompresiva con aguja 2°EIC LMC','Ecocardiograma','Tubo de tórax como primera acción'],c:1,exp:'Aguja 14G en 2°EIC, línea medioclavicular = descompresión inmediata. NO esperar TAC.'},
+        {q:'Tras aguja: SpO2 94%, TA 95/65. ¿Siguiente paso definitivo?',opts:['Alta a UCI sin más','Tubo de tórax 5°EIC línea axilar media','Repetir toracocentesis','Toracotomía'],c:1,exp:'Toracocentesis = temporal. Tubo de tórax (sello de agua) en 5°EIC, línea axilar media = tratamiento definitivo.'}
+      ]},
+      {title:'Trauma torácico cerrado — diagnóstico diferencial',
+      scenario:'Masculino 48 años, trauma torácico cerrado en accidente vial. TA 80/55, FC 130, ingurgitación yugular bilateral, ruidos cardíacos muy apagados. SpO2 91% con oxígeno. Sin desviación traqueal. Murmullo vesicular presente en ambos campos.',
+      steps:[
+        {q:'La combinación de hipotensión + ingurgitación yugular + ruidos velados SIN desviación traqueal sugiere:',opts:['Neumotórax a tensión bilateral','Tamponade cardíaco (tríada de Beck)','Hemotórax masivo bilateral','Contusión miocárdica simple'],c:1,exp:'Tríada de Beck: hipotensión + ingurgitación yugular + ruidos velados = tamponade. El neumotórax a tensión tiene desviación traqueal y ausencia de MV.'},
+        {q:'¿Cuál es el tratamiento de urgencia del tamponade traumático?',opts:['Tubo de tórax bilateral','Pericardiocentesis subxifoidea o ventana pericárdica','Toracotomía de emergencia en todos los casos','Volumen IV masivo solo'],c:1,exp:'Pericardiocentesis subxifoidea para descomprimir. En trauma penetrante con deterioro rápido: ventana pericárdica o toracotomía.'},
+        {q:'¿Cuántos ml de sangrado en tubo de tórax inicial definen hemotórax masivo?',opts:['>500 ml','>1000 ml','>1500 ml','>2000 ml'],c:2,exp:'>1500 ml en drenaje inicial de tubo de tórax = hemotórax masivo = indicación de toracotomía.'}
+      ]},
+      {title:'Tórax inestable — evaluación',
+      scenario:'Masculino 60 años, conductor, trauma torácico frontal severo. En urgencias: movimiento paradójico del hemitórax izquierdo durante la respiración, SpO2 88%, FR 32, TA 100/70, FC 105. Dolor severo en hemitórax izquierdo.',
+      steps:[
+        {q:'El movimiento paradójico torácico en trauma indica:',opts:['Neumotórax a tensión','Tórax inestable (flail chest) por fracturas costales múltiples','Hemotórax masivo','Tamponade'],c:1,exp:'Tórax inestable (flail chest): ≥3 costillas fracturadas en ≥2 lugares. El segmento "libre" se mueve en dirección opuesta al resto del tórax (movimiento paradójico).'},
+        {q:'SpO2 88% + FR 32 en tórax inestable. ¿Conducta?',opts:['Analgesia oral y reposo','Intubación y ventilación mecánica con PEEP','Vendaje compresivo del tórax','Solo oxígeno suplementario por mascarilla'],c:1,exp:'Insuficiencia respiratoria en tórax inestable = intubación + ventilación mecánica con PEEP para férula neumática interna.'},
+        {q:'La contusión pulmonar subyacente en tórax inestable se detecta mejor con:',opts:['Radiografía de tórax en urgencias','TAC de tórax con contraste','Radiografía lateral excéntrica','FAST torácico exclusivo'],c:1,exp:'TAC de tórax detecta la extensión de la contusión pulmonar subyacente (invisible o subestimada en Rx inicial). Guía la intensidad del manejo ventilatorio.'}
+      ]}
+    ],    algo:`<div class="algo-step"><div class="algo-n" style="color:#16a085">1</div><div class="algo-text"><strong>Inspección</strong> — Movimiento torácico simétrico. Heridas abiertas. Movimiento paradójico.</div></div>
+    <div class="algo-step"><div class="algo-n">2</div><div class="algo-text"><strong>Auscultación bilateral</strong> — Ausencia de MV + hipotensión + desviación traqueal = NEUMOTÓRAX A TENSIÓN.</div></div>
+    <div class="algo-step"><div class="algo-n">3</div><div class="algo-text"><strong>Descompresión inmediata</strong> — Aguja 14G, 2° EIC, LMC. SIN esperar TAC.</div></div>
+    <div class="algo-step"><div class="algo-n">4</div><div class="algo-text"><strong>Tubo de tórax</strong> — 5° EIC, línea axilar media. Hemotórax masivo: >1500 ml → quirófano.</div></div>
+    <div class="algo-step"><div class="algo-n">5</div><div class="algo-text"><strong>Tamponade</strong> — Tríada de Beck → pericardiocentesis subxifoidea o ventana pericárdica.</div></div>`
+  },
+  {
+    id:'trauma-abd', title:'Trauma abdominal y pélvico', icon:'🔵', color:'#d35400',
+    sub:'FAST, laparotomía, pelvis',
+    badge:'Alta prioridad', badgeClass:'pill-r',
+    summary:`<div class="body-p">El abdomen es la segunda causa de choque hemorrágico en trauma. El <strong>FAST</strong> (Focused Assessment with Sonography in Trauma) es la herramienta diagnóstica inicial de elección en trauma abdominal cerrado.</div>
+    <div class="mnem">Trauma abdominal cerrado + choque = bazo primero</div>
+    <div class="body-p">El <strong>bazo</strong> es el órgano más frecuentemente lesionado en trauma cerrado. El <strong>hígado</strong> es el órgano más frecuentemente lesionado en trauma penetrante.</div>
+    <div class="al al-d">⚠️ Fractura de pelvis inestable puede acumular >3000 ml. Pelvis binder inmediato y angioembolización.</div>
+    <div class="al al-i">💡 Indicaciones de laparotomía urgente: peritonitis, inestabilidad con FAST+, evisceración, lesión diafragmática.</div>`,
+    examPoints:[
+      '<strong>Bazo</strong> = órgano más frecuente en trauma cerrado.',
+      '<strong>Hígado</strong> = más frecuente en trauma penetrante.',
+      'FAST: líquido en 4 ventanas (pericárdica, esplenorrenal, hepatorrenal, pélvica).',
+      'FAST+ + inestabilidad hemodinámica = laparotomía urgente SIN TAC.',
+      'FAST+ + estabilidad = TAC con contraste para clasificar y decidir.',
+      'Fractura de pelvis inestable → pelvis binder → angioembolización.',
+      'Víscera hueca perforada → leucocitosis progresiva, fiebre diferida, neumoperitoneo.'
+    ],
+    flashcards:[
+      {q:'¿Cuál es el órgano más frecuente en trauma abdominal CERRADO?',a:'El bazo. Se lesiona por transmisión de fuerzas en el hipocondrio izquierdo (colisión frontal, impacto directo).'},
+      {q:'¿Cuál es el órgano más frecuente en trauma abdominal PENETRANTE?',a:'El hígado. Por su gran superficie y localización central.'},
+      {q:'¿Cuándo el FAST+ justifica laparotomía sin TAC?',a:'Cuando el paciente está hemodinámicamente inestable. FAST+ + inestabilidad = quirófano directo. FAST+ + estabilidad = TAC primero.'},
+      {q:'¿Por qué es peligrosa la fractura pélvica inestable?',a:'El espacio retroperitoneal pélvico puede acumular >3000 ml de sangre. Es una causa de choque refractario si no se estabiliza la pelvis.'},
+      {q:'¿Qué es el "signo del cinturón"?',a:'Equimosis lineal en abdomen por compresión del cinturón en colisión frontal. Predice lesión de víscera hueca o lesión esplénica/hepática.'}
+    ],
+    questions:[
+      {s:'Trauma abdominal cerrado, dolor en hipocondrio izquierdo, TA 90/60, FC 118.',q:'¿Cuál es el órgano más probable lesionado?',opts:['Hígado','Bazo','Riñón izquierdo','Páncreas'],c:1,exp:'El bazo es el órgano más frecuente en trauma abdominal cerrado. El hipocondrio izquierdo corresponde a su localización.'},
+      {s:'FAST muestra líquido libre en espacio esplenorrenal y hepatorrenal. Paciente con TA 70/40, FC 145.',q:'¿Cuál es la conducta correcta?',opts:['TAC abdominal con contraste','Laparotomía exploratoria urgente','Arteriografía diagnóstica','Hospitalización y observación'],c:1,exp:'FAST+ + inestabilidad hemodinámica = laparotomía urgente directa. El TAC no es seguro ni necesario en el inestable.'},
+      {s:null,q:'¿Qué órgano es el más frecuentemente lesionado en trauma penetrante abdominal?',opts:['Bazo','Intestino delgado','Hígado','Colon'],c:2,exp:'El hígado, por su gran volumen y posición central, es el órgano más frecuente en trauma penetrante. El intestino delgado es el más frecuente en PAAF.'},
+      {s:'Fractura de pelvis tipo libro abierto en politraumatizado con choque refractario a líquidos.',q:'¿Cuál es el manejo inicial de la pelvis?',opts:['Fijación quirúrgica inmediata','Pelvis binder y angioembolización','Tracción pélvica','Observación con TAC'],c:1,exp:'El pelvis binder cierra el espacio retroperitoneal reduciendo el sangrado. La angioembolización controla el sangrado arterial definitivamente.'}
+    ],
+    clinicalCases:[
+      {title:'Hemoperitoneo — decisión quirúrgica',
+      scenario:'Femenina 32 años, ciclista atropellada. TA 95/65 → 78/50 en 10 min, FC 125, abdomen con defensa y equimosis en hipocondrio izquierdo. FAST (+) líquido esplenorrenal.',
+      steps:[
+        {q:'¿La paciente es estable o inestable?',opts:['Estable — TAC posible','Inestable — hipotensión progresiva','Estable — observar','Inestable — ECG primero'],c:1,exp:'Hipotensión progresiva (95→78) + taquicardia = inestabilidad. No candidata a TAC.'},
+        {q:'FAST(+) + inestabilidad → conducta correcta',opts:['TAC abdominal urgente','Laparotomía exploratoria urgente','Arteriografía diagnóstica','Peritoneodiálisis'],c:1,exp:'FAST(+) + inestabilidad = laparotomía urgente sin TAC. Estándar ATLS.'},
+        {q:'Laparotomía: laceración esplénica grado IV. ¿Manejo?',opts:['Solo drenaje','Esplenectomía por grado IV + inestabilidad','Esplenorrafia en todos los grados','Solo packing'],c:1,exp:'Grado IV + inestabilidad = esplenectomía. Grados I-III estable: intento de esplenorrafia.'}
+      ]},
+      {title:'Trauma abdominal cerrado — víscera hueca',
+      scenario:'Masculino 25 años, accidente frontal con cinturón. Equimosis horizontal en abdomen medio (signo del cinturón). FAST negativo inicial. TA 115/75, FC 95. Dolor abdominal que aumenta en las siguientes 2 horas.',
+      steps:[
+        {q:'FAST negativo con signo del cinturón. ¿Excluye lesión abdominal?',opts:['Sí — FAST negativo descarta todo','No — víscera hueca puede no generar líquido libre detectable','Sí — si está estable no hay problema','Solo repetir FAST'],c:1,exp:'FAST detecta líquido libre (sangre). La perforación de víscera hueca (intestino) puede NO generar líquido libre inicial. Con signo del cinturón → TAC con contraste.'},
+        {q:'TAC: neumoperitoneo mínimo + engrosamiento mesentérico. ¿Diagnóstico?',opts:['Hematoma de pared abdominal','Perforación de víscera hueca','Lesión esplénica grado I','Contusión muscular'],c:1,exp:'Neumoperitoneo = perforación de víscera hueca. Aunque sea mínimo, indica comunicación del tubo digestivo con la cavidad peritoneal = exploración quirúrgica.'},
+        {q:'¿Cuál es el órgano más frecuente en trauma abdominal PENETRANTE por PAAF?',opts:['Bazo','Hígado','Intestino delgado','Colon'],c:2,exp:'Intestino delgado = más frecuente en PAAF abdominal por su gran superficie y posición central. Hígado = más frecuente en trauma penetrante en general por volumen.'}
+      ]},
+      {title:'Pelvis inestable — hemorragia retroperitoneal',
+      scenario:'Masculino 38 años, motociclista, trauma pélvico por impacto lateral. TA 75/45, FC 148, sin sangrado externo visible. Pelvis inestable a la compresión lateral y anteroposterior. FAST negativo en abdomen.',
+      steps:[
+        {q:'FAST negativo pero paciente en choque. ¿Cuál es la fuente más probable?',opts:['Hemorragia intratorácica','Hemorragia retroperitoneal pélvica','Hematoma de pared abdominal','Choque neurogénico'],c:1,exp:'Pelvis inestable + choque sin fuente abdominal visible = hemorragia retroperitoneal pélvica. El espacio retroperitoneal pélvico puede acumular >3000 ml sin líquido libre intraperitoneal.'},
+        {q:'¿Cuál es el manejo inmediato de la pelvis?',opts:['Fijación quirúrgica urgente como primera acción','Pelvis binder inmediato para cerrar el espacio retroperitoneal','Solo analgesia y TAC','Tracción esquelética'],c:1,exp:'Pelvis binder (o sábana plegada) cierra el espacio retroperitoneal reduciendo el sangrado activo. Es el primer paso mientras se prepara tratamiento definitivo (angioembolización).'},
+        {q:'Con pelvis binder colocado y TA que no mejora, ¿cuál es el tratamiento definitivo del sangrado pélvico arterial?',opts:['Laparotomía exploratoria','Angioembolización de arterias pélvicas','Más volumen IV','Cirugía de fijación ósea urgente'],c:1,exp:'Angioembolización selectiva de arterias pélvicas: catéter guiado por fluoroscopía para embolizar el punto sangrante. Es el estándar para hemorragia pélvica arterial persistente.'}
+      ]}
+    ],    algo:`<div class="algo-step"><div class="algo-n" style="color:#d35400">1</div><div class="algo-text"><strong>FAST inmediato</strong> — 4 ventanas. Resultado en &lt;2 min.</div></div>
+    <div class="algo-step"><div class="algo-n">2</div><div class="algo-text"><strong>FAST(+) + inestable</strong> → Laparotomía urgente. Sin TAC.</div></div>
+    <div class="algo-step"><div class="algo-n">3</div><div class="algo-text"><strong>FAST(+) + estable</strong> → TAC con contraste → clasificar → decidir conservador vs quirúrgico.</div></div>
+    <div class="algo-step"><div class="algo-n">4</div><div class="algo-text"><strong>Pelvis inestable</strong> → Pelvis binder → Angioembolización.</div></div>
+    <div class="algo-step"><div class="algo-n">5</div><div class="algo-text"><strong>Penetrante + inestable</strong> → Laparotomía. Penetrante + estable → TAC vs exploración.</div></div>`
+  },
+  {
+    id:'tce', title:'TCE', icon:'🧠', color:'#2c3e50',
+    sub:'Clasificación, herniación, manejo',
+    badge:'Alta prioridad', badgeClass:'pill-r',
+    summary:`<div class="body-p">El Trauma Craneoencefálico (TCE) es la principal causa de mortalidad y discapacidad en trauma. Se clasifica por la <strong>Escala de Glasgow</strong>: Leve (13-15), Moderado (9-12), Severo (≤8).</div>
+    <div class="mnem">TCE severo: GCS ≤ 8 → Intubar → TAC → UCI</div>
+    <div class="al al-d">⚠️ Anisocoria (pupila dilatada fija unilateral) + deterioro neurológico = <strong>herniación cerebral</strong> por hematoma epidural o subdural. Emergencia neuroquirúrgica.</div>
+    <div class="al al-i">💡 Hematoma epidural: "intervalo lúcido" clásico (pierde, despierta, vuelve a perder). Arteria meníngea media.</div>
+    <div class="al al-w">⚠️ En TCE: TA objetivo sistólica >90 mmHg (no usar hipotensión permisiva). Evitar hipoxia (SpO2 >95%). Evitar hiponatremia.</div>`,
+    examPoints:[
+      'GCS 13-15 = leve, 9-12 = moderado, ≤ 8 = severo.',
+      '<strong>Pupila dilatada fija unilateral</strong> + deterioro = herniación cerebral.',
+      'Hematoma epidural: intervalo lúcido + fractura temporal (arteria meníngea media).',
+      'Hematoma subdural: sin intervalo lúcido, deterioro progresivo.',
+      'TCE severo: TA sistólica >90, SpO2 >95%, evitar hipocapnia severa.',
+      'PIC normal: 5-15 mmHg. Hipertensión intracraneal: >20 mmHg.',
+      'Presión de perfusión cerebral (PPC) = PAM - PIC; objetivo >60 mmHg.'
+    ],
+    flashcards:[
+      {q:'¿Cuál es la clasificación del TCE por Glasgow?',a:'Leve: GCS 13-15. Moderado: GCS 9-12. Severo: GCS ≤ 8 (indicación de intubación).'},
+      {q:'¿Qué indica una pupila dilatada fija unilateral con deterioro neurológico?',a:'Herniación cerebral transtentorial (uncal). El nervio oculomotor (III par) se comprime por la hernia. Emergencia neuroquirúrgica.'},
+      {q:'¿Cuál es el "intervalo lúcido" y en qué patología se ve?',a:'Período de recuperación transitoria de la conciencia tras el trauma, antes de deterioro progresivo. Clásico del hematoma epidural (arteria meníngea media).'},
+      {q:'¿Por qué no se usa hipotensión permisiva en TCE?',a:'El cerebro lesionado requiere presión de perfusión cerebral adecuada (PPC = PAM - PIC > 60). La hipotensión agrava la isquemia cerebral secundaria.'},
+      {q:'¿Cuál es la diferencia entre hematoma epidural y subdural?',a:'Epidural: arteria meníngea media, intervalo lúcido, lente biconvexa en TAC. Subdural: venas puente, sin intervalo lúcido, imagen en media luna (concavoconvexo).'}
+    ],
+    questions:[
+      {s:'TCE, pupila derecha dilatada y fija, deterioro neurológico progresivo.',q:'¿Cuál es el diagnóstico probable?',opts:['Migraña con aura','Herniación cerebral','Sinusitis frontal aguda','Neuralgia occipital'],c:1,exp:'Anisocoria (pupila dilatada fija) + deterioro = herniación cerebral por compresión del III par. Emergencia neuroquirúrgica.'},
+      {s:'Hombre 25 años, trauma craneal por caída. Pierde el conocimiento brevemente, recupera lucidez por 40 min, luego deterioro progresivo hasta Glasgow 8.',q:'¿Cuál es el diagnóstico más probable?',opts:['Hematoma subdural crónico','Conmoción cerebral simple','Hematoma epidural agudo','Contusión cerebral difusa'],c:2,exp:'El intervalo lúcido (pierde → recupera → deteriora) es la presentación clásica del hematoma epidural, por sangrado de la arteria meníngea media tras fractura temporal.'},
+      {s:null,q:'¿Cuál es el objetivo de TA sistólica en TCE severo?',opts:['TA sistólica < 80 mmHg (hipotensión permisiva)','TA sistólica > 90 mmHg','TA sistólica 60-70 mmHg','No importa la TA'],c:1,exp:'En TCE la hipotensión agrava la isquemia cerebral secundaria. Se requiere TA sistólica >90 mmHg para mantener presión de perfusión cerebral adecuada.'},
+      {s:null,q:'La presión de perfusión cerebral (PPC) se calcula como:',opts:['PPC = PIC - PAM','PPC = PAM - PIC','PPC = PAM + PIC','PPC = FC × TA'],c:1,exp:'PPC = PAM - PIC. El objetivo es >60 mmHg. Si la PIC sube o la PAM baja, la PPC cae y el cerebro se isquemia.'}
+    ],
+    clinicalCases:[
+      {title:'Hematoma epidural — intervalo lúcido',
+      scenario:'Masculino 20 años, futbolista, cabezazo con el poste. Pérdida de conciencia 2 minutos. Recupera y camina al vestidor. 1 hora después: cefalea severa, vómito, Glasgow 10 cayendo. Pupila izquierda midriática.',
+      steps:[
+        {q:'¿Cuál es el diagnóstico clínico?',opts:['Conmoción cerebral simple','Hematoma epidural agudo','Hematoma subdural crónico','Hemorragia subaracnoidea'],c:1,exp:'Pérdida → intervalo lúcido → deterioro + midriasis ipsilateral = hematoma epidural agudo (arteria meníngea media). El intervalo lúcido es el signo clínico clásico.'},
+        {q:'¿Cuál es el estudio de imagen de primera elección?',opts:['RM cerebral urgente','TAC cráneo simple urgente','Radiografía de cráneo','Punción lumbar'],c:1,exp:'TAC cráneo simple: rápido, disponible, diagnóstico. Muestra imagen lenticular biconvexa en hematoma epidural.'},
+        {q:'TAC: lente biconvexa temporal izquierda, desviación línea media 8 mm. ¿Conducta?',opts:['UCI y observación 24h','Evacuación quirúrgica urgente','Esteroides IV','Mannitol y esperar RM'],c:1,exp:'Hematoma epidural + desviación >5mm = evacuación quirúrgica urgente. Sin cirugía → herniación inminente.'}
+      ]},
+      {title:'TCE severo — manejo inicial',
+      scenario:'Masculino 30 años, Glasgow 6 post-accidente vial. Pupila derecha dilatada y arreactiva. TA 160/90, FC 52, FR 8 irregular (tríada de Cushing).',
+      steps:[
+        {q:'Glasgow 6 + pupila dilatada unilateral + deterioro. ¿Diagnóstico?',opts:['Migraña con aura','Herniación cerebral transtentorial','Intoxicación etílica','Choque neurogénico'],c:1,exp:'Anisocoria (pupila dilatada fija) + deterioro neurológico = herniación cerebral. El III par se comprime por la hernia uncal. Emergencia neuroquirúrgica.'},
+        {q:'Tríada de Cushing (HTA + bradicardia + FR irregular) indica:',opts:['Choque hemorrágico en resolución','Hipertensión intracraneal severa con herniación inminente','Reacción vagal simple','Tamponade cardíaco'],c:1,exp:'Tríada de Cushing = reflejo de Cushing por hipertensión intracraneal severa: el tronco cerebral está siendo comprimido. Emergencia neuroquirúrgica absoluta.'},
+        {q:'¿Cuál es el objetivo de TA sistólica en este TCE severo?',opts:['<80 mmHg (hipotensión permisiva)','60-70 mmHg','≥90 mmHg para mantener perfusión cerebral','No importa la TA'],c:2,exp:'En TCE: TA sistólica ≥90 mmHg obligatorio. La hipotensión permisiva está CONTRAINDICADA porque agrava la isquemia cerebral secundaria.'}
+      ]},
+      {title:'Diferenciación TCE — epidural vs subdural',
+      scenario:'Femenina 72 años, anticoagulada con warfarina, caída domiciliaria de baja energía hace 3 semanas. Familia refiere deterioro cognitivo progresivo, cefalea y somnolencia en los últimos 4 días.',
+      steps:[
+        {q:'El mecanismo (baja energía + anticoagulación + deterioro progresivo 3 semanas) sugiere:',opts:['Hematoma epidural agudo','Hematoma subdural crónico','Contusión cerebral aguda','Edema cerebral traumático'],c:1,exp:'Hematoma subdural CRÓNICO: trauma mínimo + anticoagulación + deterioro subagudo-crónico. Las venas puente (no arteria meníngea) sangran lentamente. Sin intervalo lúcido agudo.'},
+        {q:'¿Cuál es la imagen en TAC del hematoma subdural crónico?',opts:['Lente biconvexa hiperdensa','Imagen en media luna hipodensa (isodensa) sobre el hemisferio','Hemorragia puntiforme profunda','Borramiento de surcos bilaterales'],c:1,exp:'Subdural crónico: imagen en media luna (concavoconvexo) hipodensa o isodensa sobre el hemisferio. Epidural agudo: lente biconvexa hiperdensa.'},
+        {q:'¿Cuál es la diferencia principal en la fisiopatología de epidural vs subdural?',opts:['Solo difieren en la edad del paciente','Epidural: arteria meníngea media (sangrado arterial rápido). Subdural: venas puente (más lento)','No hay diferencia fisiopatológica','Subdural siempre es más grave'],c:1,exp:'Epidural = arteria meníngea media → sangrado rápido, intervalo lúcido, urgencia extrema. Subdural = venas puente → más lento, sin intervalo lúcido clásico, más frecuente en ancianos y anticoagulados.'}
+      ]}
+    ],    algo:`<div class="algo-step"><div class="algo-n" style="color:#2c3e50">1</div><div class="algo-text"><strong>Glasgow</strong> — Clasificar: ≤8 severo → intubar + TAC.</div></div>
+    <div class="algo-step"><div class="algo-n">2</div><div class="algo-text"><strong>Pupilas</strong> — Anisocoria unilateral + deterioro = herniación = urgencia neuroquirúrgica.</div></div>
+    <div class="algo-step"><div class="algo-n">3</div><div class="algo-text"><strong>TAC cráneo</strong> — Clasificar hematoma. Epidural (lente biconvexa) vs Subdural (media luna).</div></div>
+    <div class="algo-step"><div class="algo-n">4</div><div class="algo-text"><strong>Objetivos fisiológicos</strong> — TA sistólica >90, SpO2 >95%, euglucemia, normocapnia.</div></div>
+    <div class="algo-step"><div class="algo-n">5</div><div class="algo-text"><strong>Cirugía</strong> — Desviación >5mm, hematoma >30ml, deterioro = evacuación urgente.</div></div>`
+  },
+  {
+    id:'trauma-vertebromedular', title:'Trauma vertebromedular', icon:'🦴', color:'#27ae60',
+    sub:'Lesión medular, clasificación, manejo',
+    badge:'Alta prioridad', badgeClass:'pill-r',
+    summary:`<div class="body-p">La lesión medular traumática puede resultar en paraplejia o cuadriplejia permanente. La columna cervical es la más vulnerable. Toda víctima de trauma con mecanismo de riesgo debe tratarse como <strong>lesión cervical hasta demostrar lo contrario</strong>.</div>
+    <div class="mnem">Trauma + parestesias/debilidad extremidades = lesión medular hasta demostrar lo contrario</div>
+    <div class="al al-d">⚠️ Choque neurogénico: hipotensión + BRADICARDIA + vasodilatación periférica. No dar volumen excesivo — usar vasopresores.</div>
+    <div class="al al-i">💡 Lesión completa vs incompleta: el tacto rectal es fundamental (tono esfinteriano = fibras sacras). Preservación sacra = lesión incompleta = mejor pronóstico.</div>`,
+    examPoints:[
+      'Todo trauma de riesgo → inmovilización cervical hasta descartar lesión.',
+      'Choque neurogénico: <strong>hipotensión + bradicardia</strong> (único en trauma).',
+      'Lesión incompleta = alguna función motora/sensitiva distal preservada = mejor pronóstico.',
+      'Preservación sacra (tono anal) = fibras sacras intactas = lesión incompleta.',
+      'ASIA (American Spinal Injury Association): clasifica la lesión A (completa) a E (normal).',
+      'NO usar altas dosis de metilprednisolona — contraindicado en ATLS actual.',
+      'Temperatura rectal en medular alta puede no detectarse bien (disautonomía).'
+    ],
+    flashcards:[
+      {q:'¿Cómo se diferencia clínicamente el choque neurogénico del hemorrágico?',a:'Neurogénico: hipotensión + BRADICARDIA + vasodilatación periférica + piel caliente. Hemorrágico: hipotensión + taquicardia + piel fría + vasoconstricción.'},
+      {q:'¿Qué es la "preservación sacra" y por qué importa?',a:'Presencia de tono anal, sensación perianal o flexión plantar voluntaria. Indica que fibras sacras están intactas → lesión medular incompleta → mejor pronóstico de recuperación.'},
+      {q:'¿Cuál es la clasificación ASIA para lesión medular completa?',a:'ASIA A: sin función motora ni sensitiva por debajo del nivel de la lesión, incluyendo segmentos S4-S5.'},
+      {q:'¿Qué síndrome medular tiene mejor pronóstico?',a:'Síndrome medular central (central cord syndrome): déficit motor mayor en extremidades superiores que inferiores. Es el más frecuente y con mejor recuperación.'},
+      {q:'¿Por qué no se recomienda metilprednisolona en lesión medular aguda?',a:'La evidencia actual (ATLS 11ª) no respalda su uso rutinario. Los efectos adversos (infección, hemorragia GI, complicaciones pulmonares) superan el beneficio no demostrado.'}
+    ],
+    questions:[
+      {s:'Trauma cervical, parestesias y debilidad bilateral en extremidades.',q:'¿Cuál es el diagnóstico probable?',opts:['Migraña basilar','Lesión medular cervical','Neuralgia intercostal','Esguince cervical simple'],c:1,exp:'Trauma cervical + parestesias + debilidad bilateral = lesión medular hasta demostrar lo contrario. Inmovilización cervical inmediata.'},
+      {s:'Post-trauma medular cervical alto: TA 70/50, FC 52 lpm, extremidades calientes y vasodilatadas.',q:'¿Cuál es el diagnóstico?',opts:['Choque hemorrágico clase IV','Choque neurogénico','Choque cardiogénico','Sincope vasovagal'],c:1,exp:'Lesión medular + hipotensión + BRADICARDIA + vasodilatación = choque neurogénico. Es el único con bradicardia en trauma.'},
+      {s:null,q:'¿Qué hallazgo en el examen físico diferencia lesión medular completa de incompleta?',opts:['Temperatura corporal','Nivel de Glasgow','Preservación sacra (tono anal y sensación perianal)','Frecuencia respiratoria'],c:2,exp:'La preservación sacra (tono anal, sensación perianal) indica fibras sacras intactas → lesión incompleta → pronóstico funcional significativamente mejor.'},
+      {s:null,q:'¿Cuál es la postura actual del ATLS 11ª edición respecto a la metilprednisolona en lesión medular aguda?',opts:['Recomendada en todos los casos','Recomendada solo en lesión incompleta','NO recomendada — evidencia insuficiente y efectos adversos','Recomendada en primeras 3 horas'],c:2,exp:'ATLS 11ª: la metilprednisolona en altas dosis NO está recomendada. La evidencia no respalda beneficio y existe riesgo real de complicaciones.'}
+    ],
+    clinicalCases:[
+      {title:'Lesión medular — buceo',
+      scenario:'Masculino 19 años, cadete, buceo en aguas poco profundas. Golpe de cabeza contra el fondo. Sin movilidad en 4 extremidades. Consciente, TA 85/55, FC 50, extremidades calientes. Nivel sensitivo C5-C6.',
+      steps:[
+        {q:'¿Cuál es la primera acción fuera del agua?',opts:['Traslado directo a urgencias','Inmovilización en bloque + collar cervical','Masaje cardíaco por bradicardia','Examen neurológico detallado in situ'],c:1,exp:'Inmovilización cervical en bloque PRIMERO. Nunca mover sin inmovilizar en sospecha de lesión cervical.'},
+        {q:'TA 85/55 + FC 50 + extremidades calientes. ¿Tipo de choque?',opts:['Hemorrágico','Cardiogénico','Neurogénico','Obstructivo'],c:2,exp:'Lesión medular cervical alta + hipotensión + BRADICARDIA + vasodilatación = choque neurogénico.'},
+        {q:'¿Cuál es el estudio inicial de elección?',opts:['Radiografía cervical simple','TAC cervical con reconstrucciones','RM cervical urgente','Mielografía'],c:1,exp:'TAC cervical con reconstrucciones = mejor para detectar fractura/luxación ósea. RM complementa para tejido medular y disco.'}
+      ]},
+      {title:'Lesión medular — clasificación ASIA',
+      scenario:'Masculino 24 años, caída de motocicleta. Trauma dorsal D10. En urgencias: sin movilidad ni sensibilidad en extremidades inferiores. Al tacto rectal: tono esfinteriano PRESENTE, sensación perianal conservada.',
+      steps:[
+        {q:'La presencia de tono esfinteriano y sensación perianal indica:',opts:['Lesión medular completa ASIA A','Lesión incompleta (preservación sacra) = mejor pronóstico','Error en la exploración','Lesión sin importancia clínica'],c:1,exp:'Preservación sacra (tono anal + sensación perianal) = fibras sacras intactas = lesión INCOMPLETA. Clasificación ASIA B-C. Pronóstico de recuperación significativamente mejor que ASIA A.'},
+        {q:'¿Cuál es la clasificación ASIA A?',opts:['Función motora y sensitiva normal','Función sensitiva preservada, motora ausente','Sin función motora ni sensitiva por debajo del nivel, incluyendo S4-S5','Función motora útil preservada'],c:2,exp:'ASIA A = lesión completa: ausencia total de función motora Y sensitiva por debajo del nivel neurológico, incluyendo segmentos sacros S4-S5.'},
+        {q:'¿Cuál es la postura del ATLS 11ª edición sobre metilprednisolona en lesión medular aguda?',opts:['Recomendada en todos en primeras 8h','Recomendada solo en lesión incompleta','NO recomendada — evidencia insuficiente y riesgos reales','Opcional según el caso'],c:2,exp:'ATLS 11ª: metilprednisolona en altas dosis NO recomendada. No hay evidencia sólida de beneficio neurológico y los efectos adversos (infección, GI, pulmonar) son reales.'}
+      ]},
+      {title:'Choque neurogénico — diagnóstico diferencial',
+      scenario:'Masculino 33 años, trauma en motocicleta, fractura de D5 con déficit neurológico. TA 72/48, FC 44, piel caliente y enrojecida. Glasgow 15. FAST negativo. Radiografía de tórax normal.',
+      steps:[
+        {q:'¿Cómo se diferencia este choque del hemorrágico?',opts:['Solo por la TA','El neurogénico tiene BRADICARDIA + vasodilatación. El hemorrágico tiene TAQUICARDIA + vasoconstricción','No hay diferencia','El hemorrágico siempre tiene sangrado externo'],c:1,exp:'Diferencia clave: choque neurogénico = bradicardia + vasodilatación (piel caliente, enrojecida). Hemorrágico = taquicardia + vasoconstricción (piel fría, pálida).'},
+        {q:'¿Cuál es el tratamiento correcto del choque neurogénico?',opts:['Cristaloides masivos 4-6 litros','Vasopresores (norepinefrina) + volumen conservador','Transfusión 1:1:1','Adrenalina en bolo IV'],c:1,exp:'Vasopresores (norepinefrina) para restaurar el tono simpático perdido. El volumen excesivo puede causar edema pulmonar neurogénico. NO tratar como choque hemorrágico.'},
+        {q:'¿Cuál es el objetivo de TA en choque neurogénico con lesión medular?',opts:['TA sistólica 60-70 mmHg','TA media >85-90 mmHg para perfusión medular','TA sistólica <80 mmHg','No hay objetivo específico'],c:1,exp:'En lesión medular, se busca PAM >85-90 mmHg en las primeras 7 días para optimizar la perfusión medular y minimizar la lesión secundaria isquémica.'}
+      ]}
+    ],    algo:`<div class="algo-step"><div class="algo-n" style="color:#27ae60">1</div><div class="algo-text"><strong>Inmovilización</strong> — Collar cervical + tabla espinal en todo trauma de riesgo.</div></div>
+    <div class="algo-step"><div class="algo-n">2</div><div class="algo-text"><strong>Evaluación neurológica</strong> — Nivel motor, sensitivo. Tacto rectal (preservación sacra).</div></div>
+    <div class="algo-step"><div class="algo-n">3</div><div class="algo-text"><strong>Choque neurogénico</strong> — Hipotensión + bradicardia → vasopresores (norepinefrina). NO volumen masivo.</div></div>
+    <div class="algo-step"><div class="algo-n">4</div><div class="algo-text"><strong>Imagen</strong> — TAC cervical + RM para tejido blando/medular.</div></div>
+    <div class="algo-step"><div class="algo-n">5</div><div class="algo-text"><strong>NO metilprednisolona</strong> — ATLS 11ª: evidencia insuficiente, riesgos reales.</div></div>`
+  },
+  {
+    id:'trauma-msk', title:'Trauma musculoesquelético', icon:'🦿', color:'#7f8c8d',
+    sub:'Fracturas, luxaciones, síndrome compartimental',
+    badge:'Prioridad media', badgeClass:'pill-y',
+    summary:`<div class="body-p">Las lesiones musculoesqueléticas rara vez son la amenaza inmediata a la vida, pero pueden ocultar sangrado masivo. Una <strong>fractura de fémur</strong> puede generar 1000-1500 ml de pérdida sanguínea.</div>
+    <div class="al al-d">⚠️ Síndrome compartimental: 5 P's — Pain (dolor), Paresthesia, Pallor (palidez), Pulselessness, Paralysis. Fasciotomía urgente.</div>
+    <div class="mnem">Fractura de pelvis: hasta 3000 ml · Fémur: 1500 ml · Tibia: 750 ml</div>
+    <div class="al al-i">💡 Fractura expuesta: ABC primero, luego irrigación + cobertura + antibióticos (primera dosis &lt;3h).</div>`,
+    examPoints:[
+      'Fractura de pelvis: hasta 3000 ml de pérdida.',
+      'Fractura de fémur: 1000-1500 ml de pérdida.',
+      'Síndrome compartimental: <strong>5 P\'s</strong>. Dolor desproporcionado al estiramiento pasivo = primer signo.',
+      'Fasciotomía: tratamiento del síndrome compartimental. No demorar.',
+      'Fractura expuesta: antibióticos en primeras 3 horas reduce infección 50%.',
+      'Luxación de cadera posterior: pie en rotación interna + adducción.',
+      'Lesión vascular en fractura supracondílea de húmero: arteria braquial.'
+    ],
+    flashcards:[
+      {q:'¿Cuáles son las 5 P del síndrome compartimental?',a:'Pain (dolor desproporcionado), Paresthesia (parestesias), Pallor (palidez), Pulselessness (pulso ausente), Paralysis. El dolor al estiramiento pasivo es el signo más precoz.'},
+      {q:'¿Cuánta sangre puede perderse en una fractura de fémur cerrada?',a:'Hasta 1500 ml (30% de la volemia adulto). Es suficiente para causar choque clase III.'},
+      {q:'¿Cuál es el tratamiento del síndrome compartimental?',a:'Fasciotomía urgente. No se puede demorar. La isquemia muscular es irreversible a las 6 horas.'},
+      {q:'¿Por qué son peligrosas las fracturas de pelvis tipo libro abierto?',a:'El espacio retroperitoneal pélvico puede expanderse y acumular >3000 ml sin tensión. Genera choque hemorrágico masivo sin signos externos obvios.'},
+      {q:'¿Qué arteria se lesiona en fractura supracondílea de húmero?',a:'La arteria braquial (humeral). Puede comprometerse por desplazamiento del fragmento distal. Siempre evaluar pulso radial.'}
+    ],
+    questions:[
+      {s:'Paciente post-trauma, extremidad inferior con dolor severo, parestesias y dolor al estiramiento pasivo de los dedos.',q:'¿Cuál es el diagnóstico?',opts:['Fractura simple','Síndrome compartimental','Esguince grado III','Contusión muscular'],c:1,exp:'Síndrome compartimental: dolor desproporcionado + parestesias + dolor al estiramiento pasivo = fasciotomía urgente.'},
+      {s:null,q:'¿Cuánta pérdida sanguínea puede generar una fractura de pelvis inestable?',opts:['500 ml máximo','1000 ml','Hasta 3000 ml','>5000 ml (nunca sangra tanto)'],c:2,exp:'La pelvis inestable puede acumular >3000 ml en el espacio retroperitoneal, generando choque hemorrágico masivo.'},
+      {s:'Deformidad evidente en extremidad inferior con imposibilidad funcional post-accidente.',q:'¿Cuál es el diagnóstico más probable?',opts:['Esguince de tobillo','Fractura','Luxación simple','Contractura muscular'],c:1,exp:'Deformidad + imposibilidad funcional + mecanismo traumático = fractura hasta demostrar lo contrario.'}
+    ],
+    clinicalCases:[
+      {title:'Síndrome compartimental — pierna',
+      scenario:'Masculino 17 años, fractura tibia-peroné en fútbol. Yeso circular. 6 horas después: dolor que no cede con morfina, parestesias en dedos del pie, dolor aumenta al moverlos pasivamente.',
+      steps:[
+        {q:'¿Cuál es el diagnóstico?',opts:['Dolor normal post-fractura','Síndrome compartimental','Trombosis venosa profunda','Fractura mal reducida'],c:1,exp:'Dolor resistente a opioides + parestesias + dolor al estiramiento PASIVO = síndrome compartimental. El yeso circular actúa como torniquete.'},
+        {q:'¿Cuál es el paso inmediato más importante?',opts:['Aumentar morfina','Retirar yeso y vendas de compresión INMEDIATAMENTE','Elevar el miembro','Doppler arterial urgente'],c:1,exp:'Retirar TODA la compresión externa (yeso, vendaje) inmediatamente. Si no mejora en minutos → fasciotomía urgente.'},
+        {q:'Presión compartimental >30 mmHg tras retirar yeso. ¿Conducta?',opts:['Observar 2 horas','Fasciotomía urgente de los 4 compartimentos','Arteriografía primero','Placa de osteosíntesis urgente'],c:1,exp:'Presión compartamental >30 mmHg (o dentro de 30 mmHg de la diastólica) = fasciotomía urgente. Isquemia irreversible a las 6 horas.'}
+      ]},
+      {title:'Fractura de fémur — sangrado oculto',
+      scenario:'Masculino 45 años, politraumatizado, fractura de fémur derecho cerrada. TA 100/70 → 82/55 en 1 hora. FC 120. Sin sangrado externo visible. Glasgow 15.',
+      steps:[
+        {q:'¿Cuál es la causa probable del deterioro hemodinámico?',opts:['Choque neurogénico por dolor','Hemorragia oculta en el muslo por la fractura femoral','Tamponade cardíaco','Neumotórax a tensión tardío'],c:1,exp:'Fractura de fémur cerrada puede generar pérdida de hasta 1500 ml en el muslo (hematoma). Es suficiente para choque clase III. Siempre cuantificar el sangrado oculto en fracturas.'},
+        {q:'¿Cuánta sangre puede perderse en una fractura de fémur cerrada?',opts:['Máximo 300 ml','500-800 ml','1000-1500 ml','Ninguna, es cerrada'],c:2,exp:'Fractura de fémur = 1000-1500 ml de pérdida sanguínea al hematoma del muslo. Fractura de pelvis = hasta 3000 ml. Tibia = 500-750 ml.'},
+        {q:'¿Cuál es la medida inmediata para reducir el sangrado en fractura de fémur?',opts:['Inmovilización con tracción longitudinal','Solo vendaje compresivo','Cirugía inmediata de osteosíntesis','Nada hasta la cirugía'],c:0,exp:'Tracción longitudinal (férula de tracción tipo Thomas) reduce el espacio del hematoma del muslo y disminuye el sangrado activo mientras se prepara la fijación definitiva.'}
+      ]},
+      {title:'Fractura expuesta — manejo inicial',
+      scenario:'Femenina 28 años, caída de motocicleta. Fractura expuesta de tibia derecha grado III con fragmento óseo visible y contaminación con tierra. TA 110/75, FC 98. Sangrado moderado.',
+      steps:[
+        {q:'¿Cuál es la prioridad de atención en fractura expuesta?',opts:['Reducción y fijación quirúrgica inmediata','xABCDE primero, luego atender la fractura','Irrigación y cierre de la herida','Radiografías de la fractura'],c:1,exp:'xABCDE SIEMPRE primero. La fractura expuesta rara vez es amenaza inmediata a la vida excepto por sangrado masivo. Estabilizar al paciente antes de atender la fractura.'},
+        {q:'¿Cuánto tiempo tiene para administrar los antibióticos para reducir el riesgo de infección?',opts:['Dentro de las primeras 8 horas','Dentro de las primeras 6 horas','Dentro de las primeras 3 horas del trauma','Solo en quirófano'],c:2,exp:'Antibióticos dentro de las primeras 3 horas del trauma reducen el riesgo de infección en 50%. Cefalosporina de 1ª generación como mínimo para grado I-II. Agregar aminoglucósido en grado III.'},
+        {q:'¿Cuál es el manejo inicial de la herida de fractura expuesta en urgencias?',opts:['Cierre primario de la herida inmediatamente','Irrigación abundante + cobertura estéril + no cerrar','Desbridamiento completo en urgencias','Sólo cubrir con gasas secas'],c:1,exp:'Irrigación con solución fisiológica + cobertura estéril. NO cerrar en urgencias (riesgo de infección anaeróbica). El desbridamiento quirúrgico definitivo se realiza en quirófano.'}
+      ]}
+    ],    algo:`<div class="algo-step"><div class="algo-n" style="color:#7f8c8d">1</div><div class="algo-text"><strong>No dejar de buscar</strong> — Las fracturas ocultan sangrado masivo. Examinar toda extremidad.</div></div>
+    <div class="algo-step"><div class="algo-n">2</div><div class="algo-text"><strong>Fracturas de riesgo hemorrágico</strong> — Pelvis binder, tracción en fémur, compresión en tibiales.</div></div>
+    <div class="algo-step"><div class="algo-n">3</div><div class="algo-text"><strong>5 P's</strong> — Dolor desproporcionado al movimiento pasivo = síndrome compartimental → fasciotomía.</div></div>
+    <div class="algo-step"><div class="algo-n">4</div><div class="algo-text"><strong>Fractura expuesta</strong> — Irrigar + cubrir + antibióticos &lt;3 horas del trauma.</div></div>
+    <div class="algo-step"><div class="algo-n">5</div><div class="algo-text"><strong>Pulsos distales</strong> — Siempre verificar antes y después de toda maniobra ortopédica.</div></div>`
+  },
+  {
+    id:'trauma-termico', title:'Trauma térmico', icon:'🔥', color:'#e74c3c',
+    sub:'Quemaduras, hipotermia, manejo',
+    badge:'Alta prioridad', badgeClass:'pill-r',
+    summary:`<div class="body-p">El trauma térmico incluye quemaduras, hipotermia y lesiones por electricidad. Las quemaduras se clasifican por profundidad y extensión de la superficie corporal quemada (SCQ).</div>
+    <div class="mnem">Regla de los 9: cabeza 9% · brazo 9% · tórax ant 18% · post 18% · cada pierna 18% · periné 1%</div>
+    <div class="al al-d">⚠️ Lesión por inhalación: hollín en vía aérea, ronquera, cejas chamuscadas → <strong>intubación temprana ANTES</strong> de que el edema cierre la vía aérea.</div>
+    <div class="al al-w">🌡️ Hipotermia: temperatura corporal central &lt; 35°C. Parte de la tríada letal. Calentar fluidos, mantas, entorno.</div>`,
+    examPoints:[
+      'Regla de los 9 para calcular SCQ en adultos.',
+      '<strong>Lesión por inhalación</strong>: hollín + ronquera + cejas chamuscadas → intubación temprana.',
+      'Hipotermia = temperatura central <strong>&lt; 35°C</strong>.',
+      'Tríada letal: <strong>hipotermia + acidosis + coagulopatía</strong>.',
+      'Fórmula de Parkland: 4 ml/kg/% SCQ de cristaloides en 24h (50% primeras 8h, 50% en 16h).',
+      'Quemaduras 3er grado + cara + manos + genitales = transferir a centro de quemados.',
+      'Quemadura circunferencial en extremidad → escarotomía por síndrome compartimental.'
+    ],
+    flashcards:[
+      {q:'¿Cómo se calcula la SCQ con la Regla de los 9?',a:'Cabeza y cuello: 9%. Cada brazo: 9%. Tórax anterior: 18%. Tórax posterior: 18%. Cada pierna: 18%. Periné: 1%. Total = 100%.'},
+      {q:'¿Cuál es la temperatura que define hipotermia según ATLS?',a:'Temperatura corporal central < 35°C. La hipotermia es un componente de la tríada letal del trauma.'},
+      {q:'¿Por qué se intubar temprano en lesión por inhalación?',a:'El edema laríngeo por quemadura puede cerrar progresivamente la vía aérea en horas. La intubación temprana previene la pérdida de acceso cuando el edema es severo.'},
+      {q:'¿Cuál es la fórmula de Parkland?',a:'4 ml × kg × %SCQ de cristaloides (Lactato de Ringer) en las primeras 24 horas. 50% en las primeras 8h, 50% en las siguientes 16h.'},
+      {q:'¿Qué complicación genera una quemadura circunferencial en extremidad?',a:'Síndrome compartimental por rigidez de la escara. Requiere escarotomía (incisión de la escara) para descomprimir.'}
+    ],
+    questions:[
+      {s:'Paciente con quemadura inhalatoria, hollín en orofaringe y ronquera progresiva.',q:'¿Cuál es el diagnóstico y la acción inmediata?',opts:['Bronquitis aguda → antibióticos','Lesión por inhalación → intubación temprana','Faringitis → reposo','Laringitis → corticoides'],c:1,exp:'Hollín en vía aérea + ronquera = lesión por inhalación. Intubación temprana ANTES de que el edema cierre la vía aérea. No esperar a que empeore.'},
+      {s:null,q:'¿Cuál es el método estándar para calcular la SCQ en adultos?',opts:['Escala de Glasgow','Regla de los 9 de Wallace','Índice SOFA','Puntaje APGAR'],c:1,exp:'La Regla de los 9 asigna porcentajes al cuerpo en múltiplos de 9. Es rápida y reproducible en urgencias.'},
+      {s:null,q:'¿Cuál es la temperatura central que define hipotermia en el paciente traumatizado?',opts:['< 36°C','< 35°C','< 34°C','< 33°C'],c:1,exp:'ATLS define hipotermia como temperatura corporal central < 35°C. Se detecta en la fase E del xABCDE.'},
+      {s:'Paciente con quemaduras severas y choque.',q:'¿Cuál es la prioridad del tratamiento inicial?',opts:['Analgésicos potentes','Reanimación con líquidos (Parkland)','Sutura de heridas','Alta a domicilio'],c:1,exp:'La quemadura grave causa choque hipovolémico masivo por pérdida de líquidos. La reanimación con cristaloides (fórmula de Parkland) es la prioridad.'}
+    ],
+    clinicalCases:[
+      {title:'Quemaduras extensas — Parkland',
+      scenario:'Masculino 40 años, incendio en bodega. Quemaduras en cara (9%), tórax anterior (18%), brazos (9% c/u) y pierna derecha (9%). Ronquera y hollín en orofaringe. FR 28, SpO2 93%.',
+      steps:[
+        {q:'¿Cuál es el porcentaje de SCQ?',opts:['36%','54%','45%','63%'],c:1,exp:'Cara 9% + tórax ant 18% + brazo izq 9% + brazo der 9% + pierna der 9% = 54% SCQ.'},
+        {q:'¿Cuál es la acción más urgente?',opts:['Calcular Parkland primero','Intubación inmediata por lesión por inhalación','Transferir a centro de quemados','Analgesia con morfina'],c:1,exp:'Ronquera + hollín + SpO2 93% = lesión por inhalación. Intubación TEMPRANA antes de que el edema cierre la vía aérea.'},
+        {q:'¿Cuántos mL en 24h según Parkland (70 kg, 54% SCQ)?',opts:['10,080 mL','15,120 mL','5,040 mL','20,160 mL'],c:1,exp:'4 ml × 70 kg × 54% = 15,120 ml. 50% (7,560 ml) primeras 8h. 50% siguientes 16h.'}
+      ]},
+      {title:'Hipotermia post-trauma',
+      scenario:'Masculino 28 años, PAAF abdominal en invierno. Traído por ambulancia tras 20 minutos en la intemperie. En urgencias: temperatura rectal 33.5°C, Glasgow 12, TA 80/50, FC 110. Abdomen rígido.',
+      steps:[
+        {q:'¿La temperatura de 33.5°C se considera hipotermia según ATLS?',opts:['No — el límite es <32°C','Sí — hipotermia se define como temperatura central <35°C','No — solo es hipotermia si hay arritmias','Sí, pero es leve, no afecta el manejo'],c:1,exp:'ATLS: hipotermia = temperatura corporal central <35°C. 33.5°C es hipotermia moderada-severa y es parte de la tríada letal del trauma.'},
+        {q:'¿A qué fase del xABCDE corresponde detectar la hipotermia?',opts:['A — vía aérea','C — circulación','D — disability','E — exposición'],c:3,exp:'E (Exposición): desvestir completamente al paciente y medir temperatura. Detectar hipotermia en esta fase activa protocolos de recalentamiento activo.'},
+        {q:'¿Cuál es la tríada letal del trauma de la que la hipotermia forma parte?',opts:['Hipotermia + hipoxia + hemorragia','Hipotermia + acidosis + coagulopatía','Hipotermia + hipercapnia + hiperglucemia','Hipotermia + hipotensión + taquicardia'],c:1,exp:'Tríada letal del trauma: HIPOTERMIA + ACIDOSIS + COAGULOPATÍA. Cada componente agrava los otros dos. Su presencia indica cirugía de control de daños.'}
+      ]},
+      {title:'Regla de los 9 — cálculo práctico',
+      scenario:'Masculino 55 años, explosión en laboratorio. Quemaduras en: cabeza completa, tórax anterior completo, brazo derecho completo, pierna izquierda completa (muslo + pierna). Sin quemaduras en dorso ni periné.',
+      steps:[
+        {q:'¿Cuál es el porcentaje total de SCQ?',opts:['36%','45%','54%','63%'],c:1,exp:'Cabeza 9% + tórax anterior 18% + brazo derecho 9% + pierna izquierda completa (muslo 9% + pierna 9% = 18% del miembro inferior) = 9+18+9+18 = 54%. Espera: cada pierna completa = 18%. SCQ = 54%.'},
+        {q:'¿Qué EXCLUIR del cálculo de SCQ con la Regla de los 9?',opts:['Cabeza y cuello','Quemaduras de 1er grado (eritema simple)','Quemaduras de 2do grado','Quemaduras de manos'],c:1,exp:'Las quemaduras de 1er grado (eritema simple, sin flictenas) NO se incluyen en el cálculo de SCQ para la Fórmula de Parkland. Solo 2do y 3er grado.'},
+        {q:'Quemadura circunferencial en brazo derecho. ¿Cuál es la complicación específica a vigilar?',opts:['Infección de la escara','Síndrome compartimental → escarotomía','Necrosis avascular del húmero','Trombosis venosa del miembro'],c:1,exp:'Quemadura circunferencial + escara rígida = síndrome compartimental por compresión extrínseca. Escarotomía (incisión de la escara) para descomprimir el compartimento.'}
+      ]}
+    ],    algo:`<div class="algo-step"><div class="algo-n" style="color:#e74c3c">1</div><div class="algo-text"><strong>Vía aérea primero</strong> — Hollín + ronquera = intubar temprano. Nunca esperar.</div></div>
+    <div class="algo-step"><div class="algo-n">2</div><div class="algo-text"><strong>SCQ</strong> — Regla de los 9. No incluir eritema simple (1er grado).</div></div>
+    <div class="algo-step"><div class="algo-n">3</div><div class="algo-text"><strong>Parkland</strong> — 4 ml × kg × %SCQ. 50% en 8h, 50% en 16h. Lactato Ringer.</div></div>
+    <div class="algo-step"><div class="algo-n">4</div><div class="algo-text"><strong>Hipotermia</strong> — &lt;35°C = tríada letal. Calentar todo: fluidos, mantas, ambiente.</div></div>
+    <div class="algo-step"><div class="algo-n">5</div><div class="algo-text"><strong>Transferir</strong> — Cara/manos/genitales + >20% SCQ + 3er grado extenso → centro especializado.</div></div>`
+  },
+  {
+    id:'trauma-extremos', title:'Trauma en extremos de la vida', icon:'👶', color:'#e91e8c',
+    sub:'Pediátrico y geriátrico',
+    badge:'Prioridad media', badgeClass:'pill-y',
+    summary:`<div class="body-p">Los extremos de la vida (niños y ancianos) tienen características fisiológicas especiales que modifican la presentación y el manejo del trauma.</div>
+    <div class="al al-i">💡 <strong>Pediátrico:</strong> mayor reserva fisiológica → compensan más tiempo → cuando descompensan, lo hacen bruscamente. No esperar hipotensión para actuar.</div>
+    <div class="al al-w">⚠️ <strong>Geriátrico:</strong> medicamentos (betabloqueadores ocultan taquicardia), anticoagulantes, menor reserva cardíaca. Umbral más bajo de actuación.</div>
+    <div class="mnem">Pediátrico: compensan más · Geriátrico: reserva mínima · Ambos: umbral bajo</div>`,
+    examPoints:[
+      'Niños compensan mejor (FC alta normal), pero descompensan súbitamente.',
+      'Valores normales de FC en niños son más altos que en adultos (lactante >160 lpm normal).',
+      'Geriátrico: betabloqueadores pueden ocultar taquicardia compensatoria.',
+      'Anticoagulación en geriátrico: hemorragias más graves y difíciles de controlar.',
+      'Vía intraósea en niño pequeño cuando no se puede canalizar vena periférica en 2 intentos.',
+      'Maltrato infantil: sospechar si mecanismo no concuerda con las lesiones.',
+      'En embarazada: la madre primero — el feto solo sobrevive si la madre sobrevive.'
+    ],
+    flashcards:[
+      {q:'¿Por qué los niños descompensan más bruscamente en el choque?',a:'Por su mayor reserva fisiológica, compensan el choque con taquicardia y vasoconstricción por más tiempo. Cuando pierden la compensación, el colapso es rápido y súbito.'},
+      {q:'¿Cómo afectan los betabloqueadores al diagnóstico de choque en geriátrico?',a:'Bloquean la respuesta taquicárdica compensatoria. Un paciente anciano con betabloqueador puede tener FC 70 con choque real. No descartar choque por FC normal.'},
+      {q:'¿Cuándo se usa la vía intraósea en pediatría?',a:'Cuando no se puede canalizar vena periférica en 2 intentos o 90 segundos. Es segura, rápida y permite administrar todos los medicamentos de urgencia.'},
+      {q:'¿Qué hacer si el mecanismo no concuerda con las lesiones en un niño?',a:'Sospechar maltrato infantil. Reportar a autoridades y resguardar al menor. Las fracturas en diferentes estados de consolidación o en sitios inusuales son señal de alarma.'}
+    ],
+    questions:[
+      {s:'Lactante 8 meses, caída "de la cama" según los padres. Múltiples equimosis en distintas etapas de evolución y fractura costal bilateral.',q:'¿Cuál es la conducta correcta?',opts:['Alta con instrucciones','Hospitalización + sospecha de maltrato + reporte a autoridades','Solo tratar las fracturas','Repetir radiografías en 1 semana'],c:1,exp:'Mecanismo no congruente con lesiones + equimosis en distintas etapas + fractura costal en lactante = maltrato infantil hasta demostrar lo contrario. Hospitalizar y reportar.'},
+      {s:'Geriátrico 78 años, trauma de baja energía, TA 100/70, FC 78 (usa metoprolol), confusión leve.',q:'¿El paciente está compensado o en choque?',opts:['Compensado, FC y TA normales','Posible choque oculto por betabloqueador — actuar','Alta a domicilio con analgésicos','Esperar TAC antes de decidir'],c:1,exp:'El betabloqueador bloquea la taquicardia compensatoria. FC "normal" de 78 puede ser choque real en un geriátrico anticoagulado. Umbral de actuación más bajo.'}
+    ],
+    clinicalCases:[
+      {title:'Trauma pediátrico — taquicardia como señal',
+      scenario:'Niño 5 años, atropellado. TA 90/65, FC 148, FR 32, Glasgow 13. Palidez leve, sin hemorragia externa evidente.',
+      steps:[
+        {q:'¿Cómo se interpreta FC 148 en este niño de 5 años?',opts:['Normal para edad pediátrica','Taquicardia compensatoria — posible choque','Arritmia supraventricular','Error de medición'],c:1,exp:'FC normal 5 años: 70-120 lpm. FC 148 = taquicardia compensatoria → posible choque. En niños: NO esperar hipotensión para actuar.'},
+        {q:'¿Cuál es la acción inmediata?',opts:['Esperar hipotensión para canalizar','xABCDE + bolo cristaloides 20ml/kg + FAST','Radiografía de pelvis','Analgésicos orales'],c:1,exp:'Taquicardia + palidez + trauma = reanimación inmediata. Bolo 20 ml/kg de cristaloides en pediatría. FAST bedside simultáneamente.'},
+        {q:'El niño no mejora con 2 bolos de 20 ml/kg. ¿Siguiente paso?',opts:['Un tercer bolo de cristaloides','Transfusión de glóbulos rojos','Alta a domicilio','Solo observación'],c:1,exp:'Si no hay respuesta tras 40-60 ml/kg de cristaloides en pediatría → transfusión de glóbulos rojos 10 ml/kg. Buscar fuente de sangrado no controlada.'}
+      ]},
+      {title:'Trauma pediátrico — vía intraósea',
+      scenario:'Lactante 14 meses, caída de altura estimada 2 metros. Glasgow 8, FC 168, TA 68/40, piel moteada. Dos intentos fallidos de vía IV periférica en urgencias.',
+      steps:[
+        {q:'Dos intentos fallidos de IV periférica. ¿Cuál es el siguiente acceso?',opts:['Intentar 2 veces más en el mismo sitio','Vía intraósea en tibia proximal','Esperar a un enfermero más experto','Vía central subclavia'],c:1,exp:'Vía intraósea (IO): si falla IV periférica en 2 intentos o 90 segundos en pediatría → IO en tibia proximal. Permite administrar TODOS los medicamentos de urgencia.'},
+        {q:'El Glasgow 8 en lactante de 14 meses. ¿Qué acción indica respecto a la vía aérea?',opts:['Observar porque respira','Oxígeno nasal solamente','Intubación orotraqueal por Glasgow ≤8','Posición lateral de seguridad'],c:2,exp:'Glasgow ≤8 = intubación orotraqueal en cualquier edad. El lactante con Glasgow 8 no puede proteger su vía aérea.'},
+        {q:'Lactante con equimosis en múltiples etapas de evolución y fractura costal. ¿Qué sospechar?',opts:['Accidente doméstico normal','Maltrato infantil — reportar y hospitalizar','Enfermedad ósea metabólica exclusivamente','Solo documentar y dar de alta'],c:1,exp:'Mecanismo incongruente + lesiones en distintas etapas + fractura costal en lactante = maltrato infantil hasta demostrar lo contrario. Hospitalizar, no dar de alta, reportar.'}
+      ]},
+      {title:'Trauma geriátrico — betabloqueador',
+      scenario:'Femenina 78 años, anticoagulada con warfarina, toma metoprolol 100mg/día. Caída desde su propia altura. TA 108/72, FC 76, Glasgow 13 (confusión leve). Hematoma frontal evidente.',
+      steps:[
+        {q:'FC 76 con anticoagulación y TCE. ¿Esta FC descarta choque?',opts:['Sí — FC normal descarta choque','No — el betabloqueador bloquea la taquicardia compensatoria','Sí — si TA >100 no hay choque','Sí — solo vigilar'],c:1,exp:'Betabloqueador (metoprolol) bloquea la respuesta taquicárdica al choque. FC 76 puede ser choque real en geriátrico anticoagulado. Umbral de actuación MÁS BAJO.'},
+        {q:'¿Cuál es el riesgo adicional por warfarina en este TCE?',opts:['No hay riesgo adicional','Hematoma intracraneal expansivo por coagulopatía — TAC urgente e invertir anticoagulación','Solo lesiones cutáneas mayores','Riesgo de trombosis'],c:1,exp:'Anticoagulación + TCE = riesgo alto de hematoma intracraneal expansivo. TAC de cráneo urgente + considerar reversión de warfarina (vitamina K + PFC o concentrado de complejo protrombínico).'},
+        {q:'¿Cuál es la diferencia en la reserva fisiológica entre pediátrico y geriátrico en trauma?',opts:['Son iguales','Pediátrico: mayor reserva, compensa más tiempo pero descompensa bruscamente. Geriátrico: reserva mínima, descompensa con menor estímulo.','Geriátrico tiene más reserva por experiencia','No hay diferencia'],c:1,exp:'Pediátrico: gran reserva → compensa bien → descompensación súbita. Geriátrico: reserva mínima → menor estímulo genera descompensación → umbral de actuación MÁS BAJO en ambos extremos de la vida.'}
+      ]}
+    ],    algo:`<div class="algo-step"><div class="algo-n" style="color:#e91e8c">1</div><div class="algo-text"><strong>Pediátrico</strong> — No esperar hipotensión. Taquicardia es el primer signo. Actuar precoz.</div></div>
+    <div class="algo-step"><div class="algo-n">2</div><div class="algo-text"><strong>Acceso IV pediátrico</strong> — Falla en 2 intentos o 90s → vía intraósea.</div></div>
+    <div class="algo-step"><div class="algo-n">3</div><div class="algo-text"><strong>Geriátrico</strong> — Betabloqueadores ocultan taquicardia. Anticoagulación = mayor sangrado.</div></div>
+    <div class="algo-step"><div class="algo-n">4</div><div class="algo-text"><strong>Maltrato</strong> — Mecanismo incongruente + lesiones múltiples etapas → sospechar y reportar.</div></div>`
+  },
+  {
+    id:'trauma-embarazo', title:'Trauma en embarazada', icon:'🤰', color:'#9b59b6',
+    sub:'Prioridades, cambios fisiológicos',
+    badge:'Prioridad media', badgeClass:'pill-y',
+    summary:`<div class="body-p">El trauma es la principal causa no obstétrica de muerte en embarazadas. El principio fundamental es <strong>la madre primero</strong> — el feto solo sobrevive si la madre sobrevive.</div>
+    <div class="mnem">La madre primero · El feto depende de la madre · Tratar a la madre es tratar al feto</div>
+    <div class="al al-d">⚠️ Hipotensión supina en embarazo avanzado: el útero comprime la vena cava inferior → <strong>desplazar útero hacia la izquierda</strong> (decúbito lateral izquierdo o cuña de 15°).</div>
+    <div class="al al-w">⚠️ Hemorragia fetal-materna: trauma abdominal puede causar desprendimiento placentario. Solicitar Kleihauer-Betke e inmunoglobulina anti-D en Rh negativo.</div>`,
+    examPoints:[
+      'La madre primero siempre. Tratar a la madre óptimamente es tratar al feto.',
+      'Después de semana 20: decúbito lateral izquierdo o cuña 15° para evitar compresión de vena cava.',
+      'Embarazada a término tiene volemia 45% mayor → puede perder más sangre antes de hipotensión.',
+      'Taquicardia basal mayor en embarazo (no interpretar como choque aisladamente).',
+      'Radiografías no contraindicadas en trauma grave — proteger abdomen si es posible.',
+      'Prueba de Kleihauer-Betke: detecta hemorragia fetal-materna.',
+      'Cesárea perimortem: si la madre no responde a RCP en 4 min, a los 5 min → cesárea.'
+    ],
+    flashcards:[
+      {q:'¿Por qué la embarazada puede perder más sangre antes de hipotensión?',a:'El volumen plasmático aumenta ~45% en el embarazo a término. Puede perder hasta 1500 ml antes de presentar hipotensión. No descartar choque por TA normal.'},
+      {q:'¿Cuál es la posición correcta en trauma de embarazada >20 semanas?',a:'Decúbito lateral izquierdo o cuña de 15° bajo la cadera derecha. Evita compresión de vena cava por el útero grávido y el síndrome de hipotensión supina.'},
+      {q:'¿Cuándo se realiza cesárea perimortem?',a:'Si la madre no responde a RCP óptima en 4 minutos, se realiza cesárea perimortem al 5° minuto para mejorar el retorno venoso materno y salvar al feto viable (>24 semanas).'},
+      {q:'¿Para qué sirve la prueba de Kleihauer-Betke?',a:'Detecta hemorragia feto-materna (sangre fetal en circulación materna) tras trauma abdominal. Guía la dosis de inmunoglobulina anti-D en madre Rh negativo.'}
+    ],
+    questions:[
+      {s:'Embarazada de 32 semanas, trauma abdominal. Al colocarla en decúbito supino para el xABCDE, TA cae de 110 a 80 mmHg.',q:'¿Cuál es la causa y la solución inmediata?',opts:['Hemorragia interna — cirugía urgente','Síndrome de hipotensión supina — desplazar útero a la izquierda','Choque cardiogénico — adrenalina','Choque neurogénico — vasopresores'],c:1,exp:'El útero grávido comprime la vena cava inferior en decúbito supino → síndrome de hipotensión supina. Desplazar útero a la izquierda o cuña de 15° bajo cadera derecha.'},
+      {s:null,q:'¿Cuál es el principio fundamental en trauma de la embarazada?',opts:['El feto primero siempre','La madre primero — el feto depende de la madre','Esperar al obstetra antes de actuar','No realizar estudios radiológicos'],c:1,exp:'La madre primero es el principio absoluto. El feto solo sobrevive si la madre sobrevive. El manejo del trauma sigue siendo xABCDE estándar.'}
+    ],
+    clinicalCases:[
+      {title:'Trauma abdominal en embarazo',
+      scenario:'Femenina 28 años, 34 semanas, accidente vehicular. TA 100/70 → 80/55 en supino, FC 108. Útero hipertónico. Equimosis en abdomen.',
+      steps:[
+        {q:'¿Por qué cae la TA en supino?',opts:['Hemorragia interna que empeora','Síndrome de hipotensión supina por compresión de VCI','Choque cardiogénico','Arritmia'],c:1,exp:'Útero grávido a 34 semanas comprime la VCI en decúbito supino → reduce retorno venoso → hipotensión. Desplazar a lateral izquierdo o cuña 15° bajo cadera derecha.'},
+        {q:'Útero hipertónico tras trauma sugiere:',opts:['Labor de parto pretérmino normal','Desprendimiento prematuro de placenta','Rotura uterina completa','Contusión uterina simple'],c:1,exp:'Trauma + útero hipertónico (table) + equimosis = desprendimiento prematuro de placenta hasta descartar. Emergencia obstétrica y materna simultánea.'},
+        {q:'¿Qué estudio detecta hemorragia feto-materna en madre Rh negativo?',opts:['Coombs indirecto','Kleihauer-Betke + inmunoglobulina anti-D','FAST obstétrico','Amniocentesis'],c:1,exp:'Kleihauer-Betke detecta sangre fetal en circulación materna. Guía la dosis de RhoGAM para prevenir sensibilización en madre Rh negativa.'}
+      ]},
+      {title:'Embarazada en parada — cesárea perimortem',
+      scenario:'Femenina 30 años, 32 semanas, politraumatizada grave. En urgencias pierde pulso. Se inicia RCP de alta calidad. Llevan 4 minutos de reanimación sin recuperación de circulación espontánea.',
+      steps:[
+        {q:'A los 4 minutos de RCP sin respuesta en embarazada de 32 semanas. ¿Qué considerar?',opts:['Detener la reanimación','Cesárea perimortem al 5° minuto','Esperar 10 minutos más de RCP','Desfibrilar aunque no sea FV'],c:1,exp:'Si RCP óptima no restaura circulación en 4 min → cesárea perimortem al 5° minuto. El útero grávido impide el retorno venoso (comprime VCI). La cesárea mejora el retorno venoso materno Y puede salvar al feto.'},
+        {q:'¿Cuál es el principio absoluto en trauma de la embarazada?',opts:['El feto primero siempre','Esperar al obstetra antes de actuar','La madre primero — el feto depende de la madre','No intubar para no dañar al feto'],c:2,exp:'LA MADRE PRIMERO, siempre. El manejo del trauma es xABCDE estándar. Tratar óptimamente a la madre es la mejor intervención para el feto.'},
+        {q:'¿En qué posición se realiza la RCP en embarazada >20 semanas?',opts:['Decúbito supino estricto','Decúbito lateral izquierdo completo','Desplazamiento manual del útero hacia la izquierda MIENTRAS se da RCP en supino','Posición de Trendelenburg'],c:2,exp:'RCP en supino (necesario para compresiones efectivas) + desplazamiento manual uterino hacia la izquierda = liberar la compresión de VCI sin comprometer la calidad de las compresiones.'}
+      ]},
+      {title:'Cambios fisiológicos del embarazo en trauma',
+      scenario:'Femenina 25 años, 28 semanas, accidente vial. TA 95/65, FC 105. El anestesiólogo argumenta que la FC elevada "es normal en el embarazo" y la TA "está bien". Abdomen con dolor difuso.',
+      steps:[
+        {q:'¿Tiene razón el anestesiólogo al normalizar estos signos por el embarazo?',opts:['Sí — el embarazo causa taquicardia y la TA baja naturalmente','No — aunque hay cambios fisiológicos, deben interpretarse en contexto clínico. Estos valores con dolor abdominal son preocupantes','Sí — esperar a hipotensión severa para actuar','No — la embarazada tiene los mismos valores normales que adulta'],c:1,exp:'El embarazo SI genera taquicardia basal leve y TA algo menor. PERO con dolor abdominal y trauma, estos valores son preocupantes. La embarazada puede perder más sangre antes de hipotensión (volemia 45% mayor) — por eso no confiarse.'},
+        {q:'¿Cuál es la posición correcta para evaluación y manejo en >20 semanas?',opts:['Decúbito supino con almohada bajo cabeza','Decúbito lateral izquierdo O cuña de 15° bajo cadera derecha','Trendelenburg','Semifowler'],c:1,exp:'Cuña de 15° bajo cadera derecha (o decúbito lateral izquierdo) → desplaza el útero, libera la VCI, mantiene el retorno venoso materno.'},
+        {q:'Radiografía de abdomen es necesaria para evaluar trauma. ¿Está contraindicada?',opts:['Sí — ninguna radiografía en embarazadas','No — el trauma grave justifica estudios necesarios protegiendo el abdomen cuando es posible','Solo si es urgente extremo','Solo después de la semana 20'],c:1,exp:'Las radiografías NO están contraindicadas en trauma grave. El riesgo del trauma no diagnosticado supera ampliamente el riesgo de la radiación. Proteger el abdomen con delantal cuando sea posible sin comprometer el diagnóstico.'}
+      ]}
+    ],    algo:`<div class="algo-step"><div class="algo-n" style="color:#9b59b6">1</div><div class="algo-text"><strong>La madre primero</strong> — xABCDE estándar. El feto depende de la madre.</div></div>
+    <div class="algo-step"><div class="algo-n">2</div><div class="algo-text"><strong>Posición</strong> — &gt;20 semanas: decúbito lateral izquierdo o cuña 15° bajo cadera derecha.</div></div>
+    <div class="algo-step"><div class="algo-n">3</div><div class="algo-text"><strong>Volemia</strong> — Embarazada tolera más pérdida antes de hipotensión. No confiarse.</div></div>
+    <div class="algo-step"><div class="algo-n">4</div><div class="algo-text"><strong>Monitoreo fetal</strong> — Frecuencia cardíaca fetal, monitoreo continuo desde semana 20+.</div></div>
+    <div class="algo-step"><div class="algo-n">5</div><div class="algo-text"><strong>Cesárea perimortem</strong> — RCP >4 min sin respuesta + viabilidad fetal → cesárea al 5° min.</div></div>`
+  },
+  {
+    id:'trauma-ambiental', title:'Trauma ambiental', icon:'🕷️', color:'#1abc9c',
+    sub:'Arañas, alacrán, serpiente, ofidismo',
+    badge:'Alta prioridad', badgeClass:'pill-r',
+    summary:`<div class="body-p">El trauma ambiental incluye lesiones por animales venenosos. Los tres más examinados son la araña Loxosceles, el alacrán y las serpientes.</div>
+    <div class="mnem">Loxosceles → Violín en cefalotórax · Latrodectus → Reloj de arena en abdomen</div>
+    <table class="dt"><tr><th>Agente</th><th>Enzima/Toxina</th><th>Tratamiento</th></tr>
+    <tr><td>Loxosceles reclusa</td><td>Esfingomielinasa-D</td><td>Soporte + dapsona (controvertido)</td></tr>
+    <tr><td>Alacrán</td><td>Escorpaminas</td><td>Faboterápico polivalente</td></tr>
+    <tr><td>Serpiente</td><td>Metaloproteasas, fosfolipasas</td><td>Suero antiofídico</td></tr></table>
+    <div class="al al-d">⚠️ Alacranismo moderado: lagrimeo + salivación + prurito nasal (colinérgico). Severo: convulsiones + arritmias.</div>`,
+    examPoints:[
+      'Loxosceles: <strong>8-15 mm</strong>, marca de <strong>violín invertido</strong> en cefalotórax.',
+      'Loxoscelismo cutáneo = forma más frecuente. Necrosis central entre 3er-4to día.',
+      'Enzima del veneno de Loxosceles: <strong>Esfingomielinasa-D</strong>.',
+      'Alacranismo moderado: <strong>lagrimeo</strong>. Severo: <strong>convulsiones</strong>.',
+      'Tratamiento específico del alacranismo: <strong>faboterápico polivalente antialacrán</strong>.',
+      'Accidente ofídico: <strong>orificios de colmillos</strong> = signo patognomónico.',
+      'Alacranismo: manejo inicial = ABC + exploración física completa.'
+    ],
+    flashcards:[
+      {q:'¿Cuál es la marca anatómica diagnóstica de Loxosceles reclusa?',a:'Marca en forma de violín invertido en el dorso del cefalotórax. El reloj de arena corresponde a Latrodectus (viuda negra).'},
+      {q:'¿Cuáles son los 3 grados del alacranismo y su signo clave?',a:'Leve: solo dolor local. Moderado: lagrimeo, salivación, prurito nasal (colinérgico). Severo: convulsiones, arritmias, insuficiencia respiratoria.'},
+      {q:'¿Cuál es el tratamiento específico del alacranismo?',a:'Faboterápico polivalente antialacrán. Anticuerpos fragmentados (Fab) que neutralizan las escorpaminas.'},
+      {q:'¿Entre qué días inicia la necrosis en loxoscelismo cutáneo?',a:'Entre el 3er y 4to día post-mordedura. Progresa como úlcera necrótica de lenta cicatrización.'},
+      {q:'¿Cuál es el signo patognomónico del accidente ofídico?',a:'La presencia de orificios de colmillos (marcas de los colmillos) en la herida.'}
+    ],
+    questions:[
+      {s:'Mujer 32 años, 24h post-mordedura, ardor tipo quemadura de cigarrillo, eritema con vesícula central y halo pálido.',q:'¿Cuál es el diagnóstico más probable?',opts:['Latrodectismo','Loxoscelismo cutáneo','Anafilaxia','Celulitis bacteriana'],c:1,exp:'Loxoscelismo cutáneo: ardor como quemadura de cigarrillo + eritema + vesícula central + halo pálido isquémico. Forma más común del loxoscelismo.'},
+      {s:'Lactante 2 años, 40 min post-picadura de alacrán. Llanto + lagrimeo + salivación + prurito nasal.',q:'¿Cuál es el grado de intoxicación?',opts:['Leve','Moderada','Severa','Fulminante'],c:1,exp:'Lagrimeo + salivación + prurito nasal = síndrome colinérgico = intoxicación MODERADA. Las convulsiones/arritmias = severa.'},
+      {s:null,q:'¿Cuál es el tratamiento específico del alacranismo?',opts:['Penicilina G sódica IV','Faboterápico polivalente antialacrán','Antihistamínicos sistémicos','Morfina IV'],c:1,exp:'El faboterápico polivalente antialacrán es el antídoto específico. No son antihistamínicos, antibióticos ni opioides.'},
+      {s:'Hombre de campo, 28 años, mordedura en tobillo, dolor intenso, edema progresivo, equimosis.',q:'¿Cuál es el signo local diagnóstico del accidente ofídico?',opts:['Eritema migratorio','Orificios de colmillos','Vesículas ampollosas','Ulceración necrótica precoz'],c:1,exp:'Los orificios de colmillos son el signo patognomónico del envenenamiento por serpiente.'},
+      {s:null,q:'¿Qué enzima del veneno de Loxosceles reclusa causa el daño tisular?',opts:['Fosfolipasa A2','Hialuronidasa','Esfingomielinasa-D','Catecol oxidasa'],c:2,exp:'La Esfingomielinasa-D es la enzima principal responsable de la dermonecrosis y hemólisis en el loxoscelismo.'}
+    ],
+    clinicalCases:[
+      {title:'Alacranismo en niño — clasificación',
+      scenario:'Niño 4 años, picadura de alacrán en el pie hace 1 hora. Lagrimeo bilateral, sialorrea, prurito nasal, estornudos frecuentes. FC 128, TA normal. Sin convulsiones.',
+      steps:[
+        {q:'¿Cuál es el grado de intoxicación?',opts:['Leve — solo tratar el dolor','Moderada — faboterápico indicado','Severa — UCI inmediata','No es alacranismo'],c:1,exp:'Lagrimeo + sialorrea + prurito nasal + estornudos = síndrome colinérgico = intoxicación MODERADA.'},
+        {q:'¿Cuál es el tratamiento específico?',opts:['Antihistamínico oral y alta','Faboterápico polivalente antialacrán IV','Penicilina IV','Adrenalina IM'],c:1,exp:'Faboterápico polivalente antialacrán = antídoto específico. Neutraliza las escorpaminas.'},
+        {q:'¿Cuándo sería intoxicación SEVERA en este niño?',opts:['Si el dolor no mejora en 1 hora','Si presenta convulsiones o arritmias','Si la sialorrea persiste >2 horas','Si no mejora con el faboterápico'],c:1,exp:'Convulsiones y arritmias cardíacas = intoxicación severa. El síndrome colinérgico (lagrimeo, sialorrea) es moderado.'}
+      ]},
+      {title:'Loxoscelismo cutáneo — diagnóstico',
+      scenario:'Mujer 45 años, mordedura de araña hace 36 horas en pierna. Ardor tipo quemadura de cigarrillo desde el inicio. En la exploración: eritema con edema, vesícula central con halo pálido isquémico de 3 cm. Temperatura 37.2°C.',
+      steps:[
+        {q:'¿Cuál es el diagnóstico más probable?',opts:['Celulitis bacteriana','Loxoscelismo cutáneo','Latrodectismo','Picadura de insecto con reacción alérgica'],c:1,exp:'Ardor tipo quemadura + vesícula central + halo pálido isquémico + 36h de evolución = loxoscelismo cutáneo. Patrón clásico de la Loxosceles reclusa.'},
+        {q:'¿Cuándo puede iniciar la necrosis central en loxoscelismo?',opts:['En las primeras 12 horas','A las 24 horas exactas','Entre el 3er y 4to día post-mordedura','A la semana'],c:2,exp:'La necrosis central característica del loxoscelismo inicia entre el 3er y 4to día. En este caso (36h) aún está en fase eritematosa-vesicular.'},
+        {q:'¿Cuál es la enzima del veneno de Loxosceles responsable del daño tisular?',opts:['Fosfolipasa A2','Hialuronidasa','Esfingomielinasa-D','Catecol oxidasa'],c:2,exp:'Esfingomielinasa-D = enzima principal del veneno de Loxosceles. Causa destrucción tisular directa y puede producir hemólisis en la forma visceral.'}
+      ]},
+      {title:'Accidente ofídico — reconocimiento',
+      scenario:'Masculino 22 años, trabajador agrícola, mordedura en tobillo mientras deshierbaba. Dolor intenso inmediato, edema que avanza por la pierna en 30 minutos, equimosis perilesional, sangrado moderado de la herida. A la inspección: dos marcas puntiformes distanciadas.',
+      steps:[
+        {q:'¿Cuál es el signo local patognomónico del accidente ofídico?',opts:['Eritema migratorio circular','Orificios de colmillos (dos marcas puntiformes)','Vesícula central con halo pálido','Ulceración necrótica precoz'],c:1,exp:'Los orificios de colmillos = signo diagnóstico del accidente ofídico. Su presencia confirma el diagnóstico clínico de envenenamiento por serpiente.'},
+        {q:'El edema progresivo + equimosis + sangrado indican veneno con actividad:',opts:['Neurotóxica exclusiva','Hemotóxica-citotóxica (proteolítica)','Solo inflamatoria local','Colinérgica'],c:1,exp:'Edema + equimosis + sangrado + necrosis local = veneno hemotóxico-citotóxico (metaloproteasas, fosfolipasas). Típico de víboras latinoamericanas (Bothrops). Las cobras/mambas tienen veneno predominantemente neurotóxico.'},
+        {q:'¿Cuál es el tratamiento específico del accidente ofídico?',opts:['Antibióticos de amplio espectro','Suero antiofídico (antiveneno) polivalente','Faboterápico antialacrán','Corticosteroides sistémicos'],c:1,exp:'Suero antiofídico (antiveneno) polivalente = único tratamiento específico. Neutraliza las toxinas del veneno. La dosis depende de la gravedad clínica, no del peso del paciente.'}
+      ]}
+    ],    algo:`<div class="algo-step"><div class="algo-n" style="color:#1abc9c">1</div><div class="algo-text"><strong>Identificar agente</strong> — Loxosceles (violín), Latrodectus (reloj arena), Alacrán, Serpiente.</div></div>
+    <div class="algo-step"><div class="algo-n">2</div><div class="algo-text"><strong>Alacranismo</strong> — Clasificar: Leve (local) → Moderado (colinérgico) → Severo (convulsiones).</div></div>
+    <div class="algo-step"><div class="algo-n">3</div><div class="algo-text"><strong>Faboterápico</strong> — Moderado/severo → faboterápico polivalente antialacrán IV.</div></div>
+    <div class="algo-step"><div class="algo-n">4</div><div class="algo-text"><strong>Loxoscelismo</strong> — Cutáneo: soporte. Visceral: hospitalización + monitoreo renal.</div></div>
+    <div class="algo-step"><div class="algo-n">5</div><div class="algo-text"><strong>Ofidismo</strong> — Inmovilizar extremidad, suero antiofídico según especie.</div></div>`
+  }
+];
+
+/* RAPID FIRE QUESTIONS - cross-module */
+const RF_QS = [
+  {q:'Hipotensión + taquicardia + piel fría en trauma = tipo de choque',opts:['Neurogénico','Hemorrágico','Cardiogénico','Séptico'],c:1},
+  {q:'Hipotensión + BRADICARDIA en trauma medular = tipo de choque',opts:['Hemorrágico','Distributivo','Neurogénico','Obstructivo'],c:2},
+  {q:'Glasgow ≤ ? = indicación de intubación orotraqueal',opts:['10','9','8','7'],c:2},
+  {q:'Desviación traqueal + ausencia MV + hipotensión = diagnóstico',opts:['Hemotórax masivo','Neumotórax a tensión','Tamponade','Contusión pulmonar'],c:1},
+  {q:'Tríada de Beck = tamponade',opts:['Hipotensión+taquicardia+palidez','Hipotensión+ingurgitación yugular+ruidos velados','Hipotermia+acidosis+coagulopatía','Fiebre+taquicardia+hipotensión'],c:1},
+  {q:'Órgano más frecuente en trauma abdominal CERRADO',opts:['Hígado','Riñón','Bazo','Páncreas'],c:2},
+  {q:'Órgano más frecuente en trauma PENETRANTE abdominal',opts:['Bazo','Hígado','Intestino delgado','Colon'],c:1},
+  {q:'Temperatura &lt; ? °C define hipotermia en ATLS',opts:['36','35','34','33'],c:1},
+  {q:'Tríada letal del trauma = hipotermia + acidosis + ?',opts:['Hiperglucemia','Coagulopatía','Hipercapnia','Hiponatremia'],c:1},
+  {q:'Regla de los 9: tórax ANTERIOR = ?%',opts:['9%','18%','27%','4.5%'],c:1},
+  {q:'Loxosceles reclusa: marca diagnóstica en el cefalotórax',opts:['Reloj de arena','Punto negro','Violín invertido','Cruz roja'],c:2},
+  {q:'Alacranismo MODERADO: signo colinérgico clave',opts:['Convulsiones','Lagrimeo','Parestesias locales','Arritmias'],c:1},
+  {q:'Alacranismo SEVERO: manifestación clínica',opts:['Prurito nasal','Lagrimeo','Convulsiones','Dolor local'],c:2},
+  {q:'Tratamiento específico del alacranismo',opts:['Penicilina G','Antihistamínico','Faboterápico polivalente','Morfina IV'],c:2},
+  {q:'Signo patognomónico del accidente ofídico',opts:['Eritema migratorio','Orificios de colmillos','Vesículas centrales','Halo pálido'],c:1},
+  {q:'Cavitación temporal en PAAF depende de:',opts:['Masa del proyectil','Energía cinética (½mv²)','Temperatura del ambiente','Ángulo de entrada'],c:1},
+  {q:'FAST(+) + inestabilidad hemodinámica = conducta',opts:['TAC con contraste','Laparotomía urgente','Arteriografía','Peritoneodiálisis'],c:1},
+  {q:'Preservación sacra en trauma medular = tipo de lesión',opts:['Lesión completa ASIA A','Lesión incompleta = mejor pronóstico','Lesión irrecuperable','Shock espinal'],c:1},
+  {q:'Tríada: pérdida conciencia → intervalo lúcido → deterioro = diagnóstico',opts:['Hematoma subdural','Hematoma epidural agudo','Conmoción cerebral','Hemorragia subaracnoidea'],c:1},
+  {q:'5 P del síndrome compartimental — el primer signo',opts:['Pulselessness','Pain desproporcionado al estiramiento pasivo','Palidez','Parálisis'],c:1},
+  {q:'Embarazada >20 semanas + trauma: posición correcta',opts:['Decúbito supino estricto','Decúbito lateral derecho','Decúbito lateral izquierdo o cuña 15°','Semi-Fowler'],c:2},
+  {q:'Hollín en vía aérea + ronquera post-quemadura = acción',opts:['Antibióticos IV','Intubación temprana inmediata','Broncodilatadores','Observar 6 horas'],c:1},
+  {q:'Fórmula de Parkland: ml/kg/% SCQ',opts:['2 ml','3 ml','4 ml','6 ml'],c:2},
+  {q:'Esfingomielinasa-D es la enzima de:',opts:['Latrodectus mactans','Loxosceles reclusa','Alacrán','Serpiente de cascabel'],c:1},
+  {q:'Control de hemorragia externa masiva es la prioridad número:',opts:['3 (después de A y B)','2 (después de A)','1 — ES la X del xABCDE','4 (después del xABCDE)'],c:2}
+];
+
+/* =================== STATE =================== */
+let state = {
+  currentScreen: 'home',
+  currentModule: null,
+  currentMiTab: 'summary',
+  moduleProgress: {},
+  xp: 0,
+  streak: 0,
+  totalAnswered: 0,
+  totalCorrect: 0,
+  errors: [],
+  fcIndex: {},
+  qIndex: {},
+  qAnswers: {},
+  caseStep: {},
+  rfIndex: 0,
+  rfScore: 0,
+  rfAnswered: 0
+};
+
+function saveState() {
+  try { localStorage.setItem('emm_state', JSON.stringify(state)); } catch(e) {}
+}
+function loadState() {
+  try {
+    const s = localStorage.getItem('emm_state');
+    if(s) state = {...state, ...JSON.parse(s)};
+  } catch(e) {}
+}
+function getProfile(){
+  if(state.profile) return state.profile;
+  try{const p=localStorage.getItem('emm_profile');if(p)return JSON.parse(p);}catch(e){}
+  return null;
+}
+
+/* =================== COUNTDOWN =================== */
+function tick() {
+  const exam = new Date('2026-05-25T07:00:00');
+  const now = new Date();
+  let diff = Math.max(0, exam - now);
+  const d = Math.floor(diff/86400000); diff %= 86400000;
+  const h = Math.floor(diff/3600000); diff %= 3600000;
+  const m = Math.floor(diff/60000); diff %= 60000;
+  const s = Math.floor(diff/1000);
+  document.getElementById('cd-d').textContent = d;
+  document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
+  document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+  document.getElementById('cd-inline').textContent = `${d}d ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m`;
+}
+tick(); setInterval(tick, 1000);
+
+/* =================== NAV =================== */
+function navTo(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.bn-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + screen).classList.add('active');
+  document.getElementById('bn-' + screen).classList.add('active');
+  state.currentScreen = screen;
+  document.getElementById('tb-back').classList.remove('vis');
+  document.getElementById('tb-title').textContent = 'Cirugía II · EMM';
+  if(screen === 'xabcde') renderXABCDE();
+  if(screen === 'rapid') initRapid();
+  if(screen === 'progress') renderProgress();
+  document.getElementById('content').scrollTop = 0;
+}
+
+function goBack() {
+  if(state.currentScreen === 'module') navTo('home');
+  else navTo('home');
+}
+
+/* =================== HOME =================== */
+function renderHome() {
+  const list = document.getElementById('mod-list');
+  list.innerHTML = MODULES.map((m, i) => {
+    const prog = state.moduleProgress[m.id] || 0;
+    return `<div class="mod-card" style="border-left-color:${m.color}" onclick="openModule('${m.id}')">
+      <div class="mod-icon">${m.icon}</div>
+      <div class="mod-info">
+        <div class="mod-title">${m.title}</div>
+        <div class="mod-sub">${m.sub}</div>
+        <div class="mod-meta"><span class="pill ${m.badgeClass}">${m.badge}</span></div>
+      </div>
+      <div class="mod-prog-wrap">
+        <div class="mod-pct">${prog}%</div>
+        <div class="mini-bar"><div class="mini-fill" style="width:${prog}%;background:${m.color}"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+  updateStats();
+}
+
+function updateStats() {
+  const progs = MODULES.map(m => state.moduleProgress[m.id] || 0);
+  const done = progs.filter(p => p >= 50).length;
+  const acc = state.totalAnswered > 0 ? Math.round((state.totalCorrect/state.totalAnswered)*100) : 0;
+  document.getElementById('stat-done').textContent = done;
+  document.getElementById('stat-streak').textContent = state.streak;
+  document.getElementById('stat-acc').textContent = acc + '%';
+  document.getElementById('stat-xp2').textContent = state.xp;
+  document.getElementById('xp-display').textContent = state.xp;
+}
+
+/* =================== MODULE =================== */
+function openModule(id) {
+  state.currentModule = id;
+  state.currentMiTab = 'summary';
+  const mod = MODULES.find(m => m.id === id);
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-module').classList.add('active');
+  document.getElementById('tb-back').classList.add('vis');
+  document.getElementById('tb-title').textContent = mod.title;
+  document.querySelectorAll('.mi-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.mi-tab')[0].classList.add('active');
+  document.getElementById('content').scrollTop = 0;
+  renderMiTab('summary');
+}
+
+function switchMiTab(tab, btn) {
+  state.currentMiTab = tab;
+  document.querySelectorAll('.mi-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('content').scrollTop = 0;
+  renderMiTab(tab);
+}
+
+function renderMiTab(tab) {
+  const mod = MODULES.find(m => m.id === state.currentModule);
+  const body = document.getElementById('mi-body');
+  if(tab === 'summary') {
+    body.innerHTML = `<div class="summary-card">
+      <div class="sc-head"><div class="sc-label">Resumen · ${mod.title}</div><div class="sc-title" style="color:${mod.color}">${mod.sub}</div></div>
+      <div class="sc-body">${mod.summary}</div>
+    </div>`;
+  }
+  else if(tab === 'exam') {
+    body.innerHTML = `<div class="ep-list">${mod.examPoints.map(ep=>`<div class="ep-item"><div class="ep-star">★</div><div class="ep-text">${ep}</div></div>`).join('')}</div>`;
+  }
+  else if(tab === 'flash') renderFlashcards(mod);
+  else if(tab === 'qs') renderQuestions(mod);
+  else if(tab === 'case') renderCase(mod);
+  else if(tab === 'algo') {
+    body.innerHTML = `<div class="algo-title">Algoritmo paso a paso</div><div class="xabcde-grid">${mod.algo}</div>`;
+  }
+}
+
+/* FLASHCARDS */
+function renderFlashcards(mod) {
+  if(!state.fcIndex[mod.id]) state.fcIndex[mod.id] = 0;
+  const idx = state.fcIndex[mod.id];
+  const total = mod.flashcards.length;
+  const fc = mod.flashcards[idx];
+  document.getElementById('mi-body').innerHTML = `
+    <div class="fc-counter">Tarjeta ${idx+1} de ${total}</div>
+    <div class="fc-wrap" onclick="flipCard()">
+      <div class="fc-inner" id="fc-inner">
+        <div class="fc-face fc-front">
+          <div class="fc-q-label">Pregunta</div>
+          <div class="fc-q-text">${fc.q}</div>
+          <div class="fc-hint">Toca para voltear</div>
+        </div>
+        <div class="fc-face fc-back">
+          <div class="fc-a-label">✓ Respuesta</div>
+          <div class="fc-a-text">${fc.a}</div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-actions">
+      <button class="fc-btn fc-btn-no" onclick="fcAnswer(false)">✗ No la sabía</button>
+      <button class="fc-btn fc-btn-yes" onclick="fcAnswer(true)">✓ La sabía</button>
+    </div>`;
+}
+
+function flipCard() {
+  document.getElementById('fc-inner').classList.toggle('flipped');
+}
+function fcAnswer(knew) {
+  const mod = MODULES.find(m => m.id === state.currentModule);
+  if(!knew) {
+    const fc = mod.flashcards[state.fcIndex[mod.id]];
+    addError('FC: ' + fc.q, fc.a, '—');
+  } else {
+    state.xp += 5; state.streak++;
+  }
+  state.fcIndex[mod.id] = (state.fcIndex[mod.id] + 1) % mod.flashcards.length;
+  updateProgress(mod.id, 20);
+  saveState(); renderFlashcards(mod);
+}
+
+/* QUESTIONS */
+function renderQuestions(mod) {
+  if(!state.qIndex[mod.id]) state.qIndex[mod.id] = 0;
+  if(!state.qAnswers[mod.id]) state.qAnswers[mod.id] = {};
+  const idx = state.qIndex[mod.id];
+  const total = mod.questions.length;
+  const answered = Object.keys(state.qAnswers[mod.id]).length;
+  const correct = Object.values(state.qAnswers[mod.id]).filter(a=>a).length;
+
+  if(idx >= total) {
+    const pct = Math.round((correct/total)*100);
+    let msg = pct>=80?'🎖️ Excelente':pct>=60?'💪 Bien — repasa los errores':'🔄 Repasa el módulo';
+    document.getElementById('mi-body').innerHTML = `
+      <div class="score-screen">
+        <div class="score-circle"><div class="score-big">${correct}</div><div class="score-den">de ${total}</div></div>
+        <div class="score-pct">${pct}%</div>
+        <div class="score-msg">${msg}</div>
+        <div class="score-grid">
+          <div class="sg-cell"><div class="sg-n" style="color:var(--ok)">${correct}</div><div class="sg-l">Correctas</div></div>
+          <div class="sg-cell"><div class="sg-n" style="color:var(--err)">${total-correct}</div><div class="sg-l">Errores</div></div>
+          <div class="sg-cell"><div class="sg-n" style="color:var(--navy)">${pct}%</div><div class="sg-l">Nota</div></div>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="resetQs()">Repetir preguntas</button>
+      </div>`;
+    return;
+  }
+
+  const q = mod.questions[idx];
+  const ans = state.qAnswers[mod.id][idx];
+  const pct = Math.round((idx/total)*100);
+
+  let html = `<div class="q-prog-row"><div class="q-prog-bar"><div class="q-prog-fill" style="width:${pct}%"></div></div><div class="q-prog-label">${idx+1}/${total}</div></div>
+  <div class="q-card">
+    <div class="q-meta">Pregunta ${idx+1} · ${mod.title}</div>`;
+  if(q.s) html += `<div class="q-scenario">${q.s}</div>`;
+  html += `<div class="q-text">${q.q}</div><div class="opts">`;
+  q.opts.forEach((o,i)=>{
+    let cls='opt', dis='';
+    if(ans!==undefined){dis='disabled';if(i===q.c)cls+=' correct';else if(i===ans)cls+=' wrong';}
+    html+=`<button class="${cls}" ${dis} onclick="answerQ(${i})"><span class="opt-l">${String.fromCharCode(65+i)}</span><span>${o}</span></button>`;
+  });
+  html += '</div>';
+  if(ans!==undefined){const ok=ans===q.c;html+=`<div class="q-feedback ${ok?'q-fb-ok':'q-fb-err'}">${ok?'✅ ':'❌ '}${q.exp}</div>`;}
+  html += `</div><div class="q-nav"><button class="btn btn-half" onclick="prevQ()" ${idx===0?'disabled':''}>← Ant</button><button class="btn btn-primary btn-half" onclick="nextQ()">${idx===total-1?'Finalizar →':'Siguiente →'}</button></div>`;
+  document.getElementById('mi-body').innerHTML = html;
+}
+
+function answerQ(i) {
+  const mod = MODULES.find(m => m.id === state.currentModule);
+  const idx = state.qIndex[mod.id];
+  if(state.qAnswers[mod.id][idx] !== undefined) return;
+  state.qAnswers[mod.id][idx] = i;
+  const q = mod.questions[idx];
+  state.totalAnswered++;
+  if(i === q.c) {state.totalCorrect++; state.xp += 10; state.streak++;}
+  else {state.streak=0; addError(q.q, q.opts[q.c], q.exp);}
+  updateProgress(mod.id, 40);
+  saveState(); renderQuestions(mod);
+}
+function nextQ(){const mod=MODULES.find(m=>m.id===state.currentModule);if(state.qAnswers[mod.id][state.qIndex[mod.id]]!==undefined)state.qIndex[mod.id]++;saveState();renderQuestions(mod);}
+function prevQ(){const mod=MODULES.find(m=>m.id===state.currentModule);if(state.qIndex[mod.id]>0)state.qIndex[mod.id]--;renderQuestions(mod);}
+function resetQs(){const mod=MODULES.find(m=>m.id===state.currentModule);state.qIndex[mod.id]=0;state.qAnswers[mod.id]={};saveState();renderQuestions(mod);}
+
+/* CLINICAL CASE */
+function renderCase(mod) {
+  const cases = mod.clinicalCases || [mod.clinicalCase];
+  if(!state.caseIdx) state.caseIdx={};
+  if(state.caseIdx[mod.id]===undefined) state.caseIdx[mod.id]=0;
+  const ci = state.caseIdx[mod.id];
+  const c = cases[ci];
+  const stateKey = 'caseAns_'+mod.id+'_'+ci;
+  if(!state.caseStep[mod.id]) state.caseStep[mod.id]=0;
+  const step = state.caseStep[mod.id];
+  const answered = state[stateKey] || {};
+
+  if(step >= c.steps.length) {
+    const total=c.steps.length;
+    const correct=Object.values(answered).filter(a=>a).length;
+    const pct=Math.round((correct/total)*100);
+    let navHtml='';
+    if(cases.length>1){
+      navHtml=`<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;justify-content:center">`;
+      cases.forEach((_,i)=>{
+        const done=!!(state['caseAns_'+mod.id+'_'+i] && Object.keys(state['caseAns_'+mod.id+'_'+i]).length===cases[i].steps.length);
+        navHtml+=`<button class="btn ${i===ci?'btn-primary':''}" style="flex:0 0 auto;padding:8px 14px;font-size:13px" onclick="goCase(${i})">${done?'✓ ':''}Caso ${i+1}</button>`;
+      });
+      navHtml+='</div>';
+    }
+    document.getElementById('mi-body').innerHTML=`
+      <div class="score-screen">
+        <div class="score-circle"><div class="score-big">${correct}</div><div class="score-den">de ${total}</div></div>
+        <div class="score-pct">${pct}%</div>
+        <div class="score-msg" style="font-size:15px;margin-bottom:16px">${correct===total?'🎖️ Caso resuelto correctamente':'💡 Revisa los pasos incorrectos'}</div>
+        <button class="btn btn-primary btn-full" onclick="resetCase()" style="margin-bottom:8px">Repetir este caso</button>
+        ${cases.length>1&&ci<cases.length-1?`<button class="btn btn-full" onclick="goCase(${ci+1})">Siguiente caso →</button>`:''}
+        ${navHtml}
+      </div>`;
+    return;
+  }
+
+  const s=c.steps[step];
+  const ans=answered[step];
+
+  // Case selector pills
+  let selectorHtml='';
+  if(cases.length>1){
+    selectorHtml=`<div style="display:flex;gap:6px;padding:10px 16px 0;overflow-x:auto;scrollbar-width:none">`;
+    cases.forEach((_,i)=>{
+      const done=!!(state['caseAns_'+mod.id+'_'+i]&&Object.keys(state['caseAns_'+mod.id+'_'+i]).length===cases[i].steps.length);
+      selectorHtml+=`<button onclick="goCase(${i})" style="white-space:nowrap;padding:5px 12px;border-radius:99px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;border:1.5px solid ${i===ci?'var(--navy)':'var(--border2)'};background:${i===ci?'var(--navy)':'white'};color:${i===ci?'var(--gold)':'var(--muted)'};cursor:pointer">${done?'✓ ':''}Caso ${i+1}</button>`;
+    });
+    selectorHtml+='</div>';
+  }
+
+  let html=selectorHtml+`<div class="case-card" style="margin-top:10px">
+    <div class="case-head">
+      <div class="case-label">Caso ${ci+1}/${cases.length} · ${c.title}</div>
+      <div class="case-title">${mod.title}</div>
+    </div>
+    <div class="case-scenario">${c.scenario}</div>
+    <div class="case-body">
+      <div class="case-q">Paso ${step+1}/${c.steps.length}: ${s.q}</div>
+      <div class="opts">`;
+  s.opts.forEach((o,i)=>{
+    let cls='opt',dis='';
+    if(ans!==undefined){dis='disabled';if(i===s.c)cls+=' correct';else if(i===ans)cls+=' wrong';}
+    html+=`<button class="${cls}" ${dis} onclick="answerCase(${i})"><span class="opt-l">${String.fromCharCode(65+i)}</span><span>${o}</span></button>`;
+  });
+  html+='</div>';
+  if(ans!==undefined){const ok=ans===s.c;html+=`<div class="q-feedback ${ok?'q-fb-ok':'q-fb-err'}">${ok?'✅ ':'❌ '}${s.exp}</div>`;}
+  html+=`</div></div>`;
+  if(ans!==undefined) html+=`<button class="btn btn-primary btn-full" style="margin-top:10px" onclick="nextCase()">${step===c.steps.length-1?'Ver resultado →':'Siguiente paso →'}</button>`;
+  document.getElementById('mi-body').innerHTML=html;
+}
+
+function answerCase(i){
+  const mod=MODULES.find(m=>m.id===state.currentModule);
+  const cases=mod.clinicalCases||[mod.clinicalCase];
+  const ci=state.caseIdx&&state.caseIdx[mod.id]!==undefined?state.caseIdx[mod.id]:0;
+  const step=state.caseStep[mod.id]||0;
+  const key='caseAns_'+mod.id+'_'+ci;
+  if(!state[key])state[key]={};
+  if(state[key][step]!==undefined)return;
+  state[key][step]=i;
+  const s=cases[ci].steps[step];
+  if(i===s.c){state.xp+=15;state.totalCorrect++;state.streak++;}
+  else{state.streak=0;addError('CASO: '+s.q,s.opts[s.c],s.exp);}
+  state.totalAnswered++;
+  updateProgress(mod.id,60);
+  saveState();renderCase(mod);
+}
+function nextCase(){
+  const mod=MODULES.find(m=>m.id===state.currentModule);
+  state.caseStep[mod.id]=(state.caseStep[mod.id]||0)+1;
+  saveState();renderCase(mod);
+}
+function resetCase(){
+  const mod=MODULES.find(m=>m.id===state.currentModule);
+  const ci=state.caseIdx&&state.caseIdx[mod.id]!==undefined?state.caseIdx[mod.id]:0;
+  state.caseStep[mod.id]=0;
+  state['caseAns_'+mod.id+'_'+ci]={};
+  saveState();renderCase(mod);
+}
+function goCase(i){
+  const mod=MODULES.find(m=>m.id===state.currentModule);
+  if(!state.caseIdx)state.caseIdx={};
+  state.caseIdx[mod.id]=i;
+  state.caseStep[mod.id]=0;
+  saveState();renderCase(mod);
+}
+
+/* ERRORS */
+function addError(q, ans, exp) {
+  const e = {q,ans,exp,ts:Date.now()};
+  state.errors = state.errors.filter(x=>x.q!==q);
+  state.errors.unshift(e);
+  if(state.errors.length>50) state.errors=state.errors.slice(0,50);
+}
+
+/* PROGRESS */
+function updateProgress(modId, base) {
+  const cur = state.moduleProgress[modId] || 0;
+  state.moduleProgress[modId] = Math.min(100, Math.max(cur, base));
+  saveState(); updateStats();
+}
+
+/* =================== XABCDE =================== */
+function renderXABCDE() {
+  const steps = [
+    {letter:'X', color:'#c0392b', name:'Hemorragia masiva externa', body:`
+      <div class="body-p" style="margin-top:10px"><strong>Primera prioridad absoluta — ATLS 11ª edición</strong></div>
+      <div class="al al-d">⚠️ Controlar la hemorragia externa exsanguinante ANTES de manejar la vía aérea.</div>
+      <div class="mnem">TORNIQUETE · COMPRESIÓN · JUNCTIONAL HEMOSTATIC</div>
+      <table class="dt"><tr><th>Sitio</th><th>Método</th></tr>
+      <tr><td>Extremidades</td><td>Torniquete comercial (CAT, SOFTT-W)</td></tr>
+      <tr><td>Uniones (ingle/axila)</td><td>Gasa hemostática + compresión</td></tr>
+      <tr><td>Cuello</td><td>Compresión directa (NO torniquete)</td></tr></table>
+      <div class="al al-i">💡 Documentar hora de colocación del torniquete. Máximo 2h antes de isquemia irreversible.</div>`},
+    {letter:'A', color:'#2980b9', name:'Airway — Vía aérea', body:`
+      <div class="body-p" style="margin-top:10px">Permeable + control cervical. Toda maniobra con collar cervical o control inline.</div>
+      <div class="mnem">GCS ≤ 8 = INTUBAR AHORA</div>
+      <table class="dt"><tr><th>Signo</th><th>Significado</th><th>Acción</th></tr>
+      <tr><td>Gorgoteo</td><td>Líquido en VA proximal</td><td>Aspirar + intubar</td></tr>
+      <tr><td>Estridor</td><td>Obstrucción parcial supraglótica</td><td>Intubar urgente</td></tr>
+      <tr><td>Disfonía</td><td>Edema laríngeo</td><td>Intubar temprano</td></tr>
+      <tr><td>Apnea</td><td>Sin drive respiratorio</td><td>Intubación inmediata</td></tr></table>`},
+    {letter:'B', color:'#16a085', name:'Breathing — Ventilación', body:`
+      <div class="body-p" style="margin-top:10px">Oxigenar y ventilar efectivamente. Detectar lesiones torácicas amenazantes.</div>
+      <div class="mnem">SIEMPRE AUSCULTAR AMBOS HEMITÓRAX</div>
+      <table class="dt"><tr><th>Hallazgo</th><th>Diagnóstico</th><th>Acción</th></tr>
+      <tr><td>Ausencia MV + hipotensión + desviación traqueal</td><td>Neumotórax a tensión</td><td>Aguja 2°EIC LMC</td></tr>
+      <tr><td>Ausencia MV + matidez</td><td>Hemotórax</td><td>Tubo de tórax</td></tr>
+      <tr><td>Herida soplante</td><td>Neumotórax abierto</td><td>Parche 3 puntas</td></tr></table>`},
+    {letter:'C', color:'#8e44ad', name:'Circulation — Circulación', body:`
+      <div class="body-p" style="margin-top:10px">Controlar sangrado interno y reponer volumen. Identificar el tipo de choque.</div>
+      <div class="mnem">2 ACCESOS IV GRUESOS + FAST + REANIMACIÓN HEMOSTÁTICA 1:1:1</div>
+      <table class="dt"><tr><th>Choque</th><th>FC</th><th>Dx clave</th></tr>
+      <tr><td>Hemorrágico</td><td>Taquicardia</td><td>Trauma + piel fría</td></tr>
+      <tr><td>Neurogénico</td><td>Bradicardia ★</td><td>Lesión medular</td></tr>
+      <tr><td>Obstructivo</td><td>Taquicardia</td><td>Neumotórax tensión / Tamponade</td></tr></table>`},
+    {letter:'D', color:'#f39c12', name:'Disability — Neurológico', body:`
+      <div class="body-p" style="margin-top:10px">Evaluación neurológica rápida. 60 segundos.</div>
+      <div class="mnem">AVDI: Alerta · Verbal · Dolor · Inconsciente</div>
+      <table class="dt"><tr><th>Evaluación</th><th>Hallazgo clave</th></tr>
+      <tr><td>Glasgow</td><td>≤ 8 → ya intubado en A</td></tr>
+      <tr><td>Pupilas</td><td>Anisocoria = herniación</td></tr>
+      <tr><td>Déficit motor/sensitivo</td><td>Nivel medular</td></tr></table>`},
+    {letter:'E', color:'#7f8c8d', name:'Exposure — Exposición', body:`
+      <div class="body-p" style="margin-top:10px">Desvestir completamente. Temperatura central.</div>
+      <div class="mnem">TEMPERATURA &lt; 35°C = HIPOTERMIA = TRÍADA LETAL</div>
+      <div class="al al-d">⚠️ Hipotermia + Acidosis + Coagulopatía = Tríada letal → Cirugía de Control de Daños</div>
+      <table class="dt"><tr><th>Buscar</th><th>Importancia</th></tr>
+      <tr><td>Heridas ocultas (dorso, periné)</td><td>Fuentes de sangrado oculto</td></tr>
+      <tr><td>Temperatura rectal</td><td>Hipotermia precoz</td></tr>
+      <tr><td>Deformidades</td><td>Fracturas con sangrado</td></tr></table>`}
+  ];
+  document.getElementById('xabcde-content').innerHTML = `<div class="xabcde-grid">${steps.map((s,i)=>`
+    <div class="xa-row">
+      <div class="xa-head" onclick="toggleXa(${i})">
+        <div class="xa-letter" style="color:${s.color}">${s.letter}</div>
+        <div class="xa-name">${s.name}</div>
+        <div class="xa-chevron" id="xa-ch-${i}">▼</div>
+      </div>
+      <div class="xa-body" id="xa-b-${i}">${s.body}</div>
+    </div>`).join('')}</div>`;
+}
+
+function toggleXa(i) {
+  const b = document.getElementById('xa-b-'+i);
+  const c = document.getElementById('xa-ch-'+i);
+  const open = b.classList.contains('open');
+  b.classList.toggle('open', !open);
+  c.classList.toggle('open', !open);
+}
+
+/* =================== RAPID FIRE =================== */
+function initRapid() {
+  state.rfIndex = 0; state.rfScore = 0; state.rfAnswered = 0;
+  renderRapid();
+}
+
+function renderRapid() {
+  const body = document.getElementById('rapid-body');
+  if(state.rfIndex >= RF_QS.length) {
+    const pct = Math.round((state.rfScore/RF_QS.length)*100);
+    body.innerHTML = `<div class="score-screen">
+      <div class="score-circle"><div class="score-big">${state.rfScore}</div><div class="score-den">de ${RF_QS.length}</div></div>
+      <div class="score-pct">${pct}%</div>
+      <div class="score-msg">${pct>=84?'🎖️ Dominas los patrones clínicos':'💪 Repasa los errores antes del examen'}</div>
+      <button class="btn btn-primary btn-full" onclick="initRapid()">Repetir fuego rápido</button>
+    </div>`;
+    return;
+  }
+  const q = RF_QS[state.rfIndex];
+  body.innerHTML = `
+    <div class="streak-bar"><div class="streak-n">🔥${state.streak}</div><div class="streak-l">Racha actual</div></div>
+    <div class="rf-card"><div class="rf-label">Pregunta ${state.rfIndex+1} / ${RF_QS.length}</div><div class="rf-q">${q.q}</div></div>
+    <div class="rf-grid" id="rf-opts">${q.opts.map((o,i)=>`<button class="rf-opt" onclick="rfAnswer(${i})">${o}</button>`).join('')}</div>
+    <div style="text-align:center;font-size:12px;color:var(--hint)">✓ ${state.rfScore} correctas hasta ahora</div>`;
+}
+
+function rfAnswer(i) {
+  const q = RF_QS[state.rfIndex];
+  const btns = document.querySelectorAll('.rf-opt');
+  btns.forEach((b,j)=>{b.disabled=true;if(j===q.c)b.classList.add('correct');else if(j===i&&i!==q.c)b.classList.add('wrong');});
+  if(i===q.c){state.rfScore++;state.xp+=8;state.streak++;}
+  else{state.streak=0;addError('RF: '+q.q,q.opts[q.c],'—');}
+  state.totalAnswered++;
+  if(i===q.c)state.totalCorrect++;
+  saveState();
+  setTimeout(()=>{state.rfIndex++;renderRapid();},800);
+}
+
+/* =================== PROGRESS =================== */
+function renderProgress() {
+  const total = MODULES.length;
+  const progs = MODULES.map(m=>state.moduleProgress[m.id]||0);
+  const overall = Math.round(progs.reduce((a,b)=>a+b,0)/(total*100)*100);
+  const errCount = state.errors.length;
+  const acc = state.totalAnswered>0?Math.round((state.totalCorrect/state.totalAnswered)*100):0;
+
+  let html = `<div class="prog-overall">
+    <div class="po-label">Progreso general</div>
+    <div class="po-bar-wrap"><div class="po-bar" style="width:${overall}%"></div></div>
+    <div class="po-pct">${overall}% completado</div>
+  </div>
+  <div style="padding:0 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+    <div class="sg-cell"><div class="sg-n" style="color:var(--ok)">${state.totalCorrect}</div><div class="sg-l">Correctas</div></div>
+    <div class="sg-cell"><div class="sg-n" style="color:var(--navy)">${acc}%</div><div class="sg-l">Precisión</div></div>
+    <div class="sg-cell"><div class="sg-n" style="color:var(--err)">${errCount}</div><div class="sg-l">Errores</div></div>
+  </div>
+  <div class="sec-hd">Progreso por módulo</div>
+  <div class="prog-list">`;
+  MODULES.forEach(m=>{
+    const p = state.moduleProgress[m.id]||0;
+    html+=`<div class="pl-item">
+      <div class="pl-dot" style="background:${m.color}"></div>
+      <div class="pl-name">${m.icon} ${m.title}</div>
+      <div class="pl-bar-wrap"><div class="pl-bar" style="width:${p}%;background:${m.color}"></div></div>
+      <div class="pl-pct">${p}%</div>
+    </div>`;
+  });
+  html += '</div>';
+
+  // User profile section
+  const prof=state.profile||{};
+  if(prof.nombre){
+    html+=`<div style="margin:0 16px 12px;background:var(--navy);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:14px;">
+      <div style="width:44px;height:44px;border-radius:50%;background:rgba(201,168,76,.2);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--gold);flex-shrink:0;">${prof.nombre.trim().charAt(0).toUpperCase()}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--gold2);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${prof.nombre}</div>
+        <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:2px;">${prof.grupo} &nbsp;·&nbsp; Lista #${prof.lista}</div>
+      </div>
+      <button onclick="changeUser()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:6px 12px;color:rgba(255,255,255,.5);font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;flex-shrink:0;">Cambiar</button>
+    </div>`;
+  }
+
+  if(state.errors.length > 0) {
+    html += `<div class="sec-hd">Errores recientes (${Math.min(state.errors.length,10)})</div><div style="padding:0 12px 12px">`;
+    state.errors.slice(0,10).forEach(e=>{
+      html+=`<div class="review-item rv-err">
+        <div class="rv-q">${e.q.substring(0,80)}${e.q.length>80?'...':''}</div>
+        <div class="rv-a">Correcta: <span>${e.ans}</span></div>
+      </div>`;
+    });
+    html += `<button class="btn btn-full" onclick="clearErrors()" style="margin-top:8px">Borrar errores</button></div>`;
+  } else {
+    html += `<div class="err-empty">Sin errores registrados.<br>¡Empieza a estudiar! 💪</div>`;
+  }
+
+  document.getElementById('prog-content').innerHTML = html;
+}
+
+function clearErrors() { state.errors=[]; saveState(); renderProgress(); }
+function changeUser(){
+  if(!confirm('¿Cambiar de usuario? Se mantendrá tu progreso guardado en este dispositivo.')) return;
+  try{localStorage.removeItem('emm_profile');}catch(e){}
+  state.profile=null;
+  document.getElementById('tb-user-badge').textContent='';
+  document.getElementById('app').style.display='none';
+  showReg();
+}
+
+/* =================== SPLASH =================== */
+/* =================== SPLASH + REGISTRO =================== */
+function hideSplash(){
+  const s=document.getElementById('splash');
+  if(!s)return;
+  s.style.opacity='0';
+  s.style.pointerEvents='none';
+  setTimeout(()=>{if(s.parentNode)s.parentNode.removeChild(s);},500);
+}
+
+function showReg(){
+  const r=document.getElementById('reg-screen');
+  r.style.display='flex';
+  r.style.opacity='0';
+  setTimeout(()=>{r.style.transition='opacity .4s';r.style.opacity='1';},20);
+  setTimeout(()=>{
+    const n=document.getElementById('reg-nombre');
+    if(n)n.focus();
+  },400);
+}
+
+function hideReg(){
+  const r=document.getElementById('reg-screen');
+  r.style.opacity='0';
+  setTimeout(()=>{r.style.display='none';},400);
+}
+
+function submitReg(){
+  const nombre=document.getElementById('reg-nombre').value.trim();
+  const grupo=document.getElementById('reg-grupo').value;
+  const lista=document.getElementById('reg-lista').value.trim();
+  const errEl=document.getElementById('reg-error');
+  if(!nombre||!grupo||!lista){
+    errEl.style.display='block';
+    errEl.textContent='Por favor completa todos los campos.';
+    return;
+  }
+  if(isNaN(lista)||Number(lista)<1||Number(lista)>60){
+    errEl.style.display='block';
+    errEl.textContent='Número de lista inválido (1–60).';
+    return;
+  }
+  errEl.style.display='none';
+  // Save user profile
+  const profile={nombre,grupo,lista,ts:Date.now()};
+  try{localStorage.setItem('emm_profile',JSON.stringify(profile));}catch(e){}
+  state.profile=profile;
+  updateUserBadge();
+  hideReg();
+  setTimeout(()=>{document.getElementById('app').style.display='flex';},420);
+}
+
+function updateUserBadge(){
+  const p=state.profile;
+  if(!p)return;
+  const badge=document.getElementById('tb-user-badge');
+  if(badge){
+    // Show abbreviated name + group
+    const parts=p.nombre.split(' ');
+    const short=parts.length>=2?parts[parts.length-1]+' '+parts[0].charAt(0)+'.':p.nombre;
+    badge.textContent=short+' · '+p.grupo+' #'+p.lista;
+    badge.title=p.nombre+' — '+p.grupo+' — Lista #'+p.lista;
+  }
+}
+
+// Enter key submits registration
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){
+    const r=document.getElementById('reg-screen');
+    if(r&&r.style.display!=='none'&&r.style.opacity!=='0'){
+      submitReg();
+    }
+  }
+});
+
+/* =================== INIT =================== */
+loadState();
+// Check if profile exists
+let savedProfile=null;
+try{const sp=localStorage.getItem('emm_profile');if(sp)savedProfile=JSON.parse(sp);}catch(e){}
+
+if(savedProfile&&savedProfile.nombre&&savedProfile.grupo&&savedProfile.lista){
+  // Returning user — load directly
+  state.profile=savedProfile;
+  document.getElementById('app').style.display='flex';
+  updateUserBadge();
+  renderHome();
+  // Splash briefly then straight to app
+  try{document.getElementById('sf').style.width='100%';}catch(e){}
+  setTimeout(hideSplash,1500);
+} else {
+  // New user — show splash then registration form
+  document.getElementById('app').style.display='none';
+  try{document.getElementById('sf').style.width='100%';}catch(e){}
+  setTimeout(()=>{
+    hideSplash();
+    setTimeout(showReg,600);
+  },2000);
+  renderHome(); // render in background
+}
+</script>
+</body>
+</html>
